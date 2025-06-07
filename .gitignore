@@ -1,5 +1,4 @@
 # CakePHP 3
-
 /vendor/*
 /config/app.php
 
@@ -18,8 +17,56 @@
 !/logs/empty
 
 # CakePHP 2
-
 /app/tmp/*
 /app/Config/core.php
 /app/Config/database.php
 /vendors/*
+
+# OS специфични
+.DS_Store
+Thumbs.db
+
+# IDE/Editor файлове
+.idea/
+.vscode/
+*.swp
+
+# Composer зависимости
+/vendor/
+composer.lock
+
+# Node.js зависимости (ако се ползва фронтенд tooling)
+/node_modules/
+package-lock.json
+yarn.lock
+
+# Качени и архивирани файлове
+/public/uploads/
+/storage/temp/
+/storage/archive/
+
+# Логове
+/storage/logs/
+*.log
+
+# Инициализиращи файлове
+/init_structure.sh
+
+# Кешове
+cache/
+*.cache
+
+# Секретни/локални конфигурации
+config/config.local.php
+
+# Временни PHP/сесийни файлове
+*.session
+*.tmp
+
+# Бекъп файлове
+*.bak
+*.old
+
+# Локални бази данни и експорти
+/database/*.sqlite
+/database/backup.sql
