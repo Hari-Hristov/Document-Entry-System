@@ -1,20 +1,17 @@
-namespace App\Models;
+<?php
 
-use Illuminate\Database\Eloquent\Model;
+require_once 'Model.php';
 
-class Category extends Model
-{
-protected $fillable = [
-'name', 'responsible_user_id'
-];
+class Category extends Model {
 
-public function documents()
-{
-return $this->hasMany(Document::class);
-}
+    public function getAll() {
+        $stmt = $this->db->query("SELECT * FROM categories ORDER BY name ASC");
+        return $stmt->fetchAll();
+    }
 
-public function responsible()
-{
-return $this->belongsTo(User::class, 'responsible_user_id');
-}
+    public function getById($id) {
+        $stmt = $this->db->prepare("SELECT * FROM categories WHERE id = :id");
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetch();
+    }
 }
