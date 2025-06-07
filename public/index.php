@@ -1,7 +1,26 @@
 <?php
-// public/index.php
 
-require_once __DIR__ . '/../app/config/config.php';
-require_once __DIR__ . '/../app/core/Router.php';
+require_once _DIR_ . '/../app/controllers/DocumentController.php';
 
-Router::route();
+$controller = new DocumentController();
+
+$action = $_GET['action'] ?? 'uploadForm';
+$id = $_GET['id'] ?? null;
+
+switch ($action) {
+    case 'upload':
+        $controller->upload();
+        break;
+    case 'status':
+        if ($id) {
+            $controller->status($id);
+        } else {
+            echo "Липсва идентификатор на документа.";
+        }
+        break;
+    case 'uploadForm':
+    default:
+        $controller->showUploadForm();
+        break;
+}
+

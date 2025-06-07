@@ -1,16 +1,47 @@
 <?php
 // app/controllers/CategoryController.php
 
-require_once __DIR__ . '/../models/Category.php';
+require_once _DIR_ . '/../models/Category.php';
 
 class CategoryController
 {
-    public function index()
+    private Category $categoryModel;
+
+    public function __construct()
     {
-        $model = new Category();
-        $categories = $model->getAll();
-        include __DIR__ . '/../views/categories/index.php';
+        $this->categoryModel = new Category();
     }
 
-    // по избор: add(), store(), edit(), delete() и др.
+    /**
+     * Показва списък с категории
+     */
+    public function index()
+    {
+        $categories = $this->categoryModel->getAll();
+        include _DIR_ . '/../views/categories/index.php';
+    }
+
+    /**
+     * Показва форма за добавяне на категория
+     */
+    public function create()
+    {
+        include _DIR_ . '/../views/categories/create.php';
+    }
+
+    /**
+     * Записва нова категория
+     */
+    public function store()
+    {
+        $name = $_POST['name'] ?? '';
+        if (empty(trim($name))) {
+            echo "Името на категорията не може да бъде празно.";
+            return;
+        }
+
+        $this->categoryModel->create($name);
+        header('Location: index.php?controller=category&action=index');
+    }
 }
+

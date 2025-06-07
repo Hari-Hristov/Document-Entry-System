@@ -1,56 +1,55 @@
 <?php
-// app/controllers/DocumentController.php
 
-require_once __DIR__ . '/../models/Document.php';
-require_once __DIR__ . '/../models/Category.php';
-require_once __DIR__ . '/../core/Helper.php';
+require_once _DIR_ . '/../models/Document.php';
 
-class DocumentController
-{
-    public function upload()
-    {
-        $categoryModel = new Category();
-        $categories = $categoryModel->getAll();
+class DocumentController {
 
-        include __DIR__ . '/../views/documents/upload.php';
+    protected $documentModel;
+
+    public function __construct() {
+        $this->documentModel = new Document();
     }
 
-    public function store()
-    {
-        if (!isset($_FILES['document'])) {
-            die('Няма качен файл.');
-        }
+    public function showUploadForm() {
+        include _DIR_ . '/../../views/documents/upload.php';
+    }
 
-        $filename = Helper::sanitizeFilename($_FILES['document']['name']);
-        $destination = UPLOAD_PATH . '/' . $filename;
+    public function upload() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['document'])) {
+            $file = $_FILES['document'];
 
-        if (move_uploaded_file($_FILES['document']['tmp_name'], $destination)) {
-            $docModel = new Document();
-            $accessCode = Helper::generateCode(10);
+            $allowedTypes = ['application/pdf', 'application/zip', 'text/html'];
+            if (!in_array($file['type'], $allowedTypes)) {
+                die('Невалиден файлов формат.');
+            }
 
-            $docId = $docModel->create($filename, $_POST['category_id'], $accessCode);
+            $filename = uniqid() . '_' . basename($file['name']);
+            $target = UPLOAD_DIR . $filename;
 
-            echo "Документът е качен успешно! Входящ номер: {$docId}, Код за достъп: {$accessCode}";
-        } else {
-            echo "Грешка при качване.";
+            if (move_uploaded_file($file['tmp_name'], $target)) {
+                $category_id = intval($_POST['category_id'] ?? 0);
+                $access_code = bin2hex(random_bytes(8));
+                $docId = $this->documentModel->create($filename, $category_id, $access_code);
+
+                echo "Документът е качен успешно! Входящ номер: {$docId}, Код за достъп: {$access_code}";
+            } else {
+                echo "Грешка при качване на файла.";
+            }
         }
     }
 
-    public function status()
-    {
-        $code = $_GET['code'] ?? '';
-        if (!$code) {
-            die('Невалиден код.');
+    public function status($idOrCode) {
+        $document = $this->documentModel->getById($idOrCode);
+        if (!$document) {
+            $document = $this->documentModel->getByAccessCode($idOrCode);
         }
-
-        $docModel = new Document();
-        $document = $docModel->getByAccessCode($code);
 
         if (!$document) {
             echo "Документът не е намерен.";
             return;
         }
 
-        include __DIR__ . '/../views/documents/status.php';
+        include _DIR_ . '/../../views/documents/status.php';
     }
 }
+

@@ -1,32 +1,30 @@
 <?php
 // app/models/User.php
 
-class User
-{
-    private $db;
+require_once 'Model.php';
 
-    public function __construct()
-    {
-        // Тук се свързваш с БД, например PDO
-        $this->db = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASS);
-        $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+class User extends Model {
+
+    public function getById($id) {
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE id = :id");
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetch();
     }
 
-    public function getByUsername(string $username)
-    {
-        $stmt = $this->db->prepare('SELECT * FROM users WHERE username = :username LIMIT 1');
-        $stmt->execute(['username' => $username]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+    public function getByUsername($username) {
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE username = :username");
+        $stmt->execute([':username' => $username]);
+        return $stmt->fetch();
     }
 
-    public function create(string $username, string $password, string $role = 'user')
-    {
-        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $this->db->prepare('INSERT INTO users (username, password_hash, role) VALUES (:username, :password_hash, :role)');
-        return $stmt->execute([
-            'username' => $username,
-            'password_hash' => $passwordHash,
-            'role' => $role
+    public function create($username, $password, $role = 'user') {
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $this->db->prepare("INSERT INTO users (username, password, role) VALUES (:u, 😛, :r)");
+        $stmt->execute([
+            ':u' => $username,
+            '😛' => $hashed,
+            ':r' => $role
         ]);
+        return $this->db->lastInsertId();
     }
 }
