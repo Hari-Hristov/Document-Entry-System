@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <title>Входиране на документи</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script defer src="assets/js/main.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Система за входиране на документи</h1>
+
+        <section class="upload-section">
+            <h2>Качване на документ</h2>
+            <form id="uploadForm" method="POST" action="/upload.php" enctype="multipart/form-data">
+                <label for="category">Категория:</label>
+                <select name="category" id="category">
+                    <option value="">-- Без категория --</option>
+                    <option value="1">Отдел Студенти</option>
+                    <option value="2">Отдел Сесия</option>
+                </select>
+
+                <label for="document">Изберете документ (PDF/ZIP):</label>
+                <input type="file" name="document" id="document" required>
+
+                <button type="submit">Качи</button>
+            </form>
+        </section>
+
+        <hr>
+
+        <section class="check-section">
+            <h2>Провери статус на документ</h2>
+            <form id="checkForm" method="GET" action="/view.php">
+                <label for="incoming">Входящ номер:</label>
+                <input type="text" name="incoming" id="incoming" required>
+
+                <label for="access_code">Код за достъп:</label>
+                <input type="text" name="access_code" id="access_code" required>
+
+                <button type="submit">Провери</button>
+            </form>
+        </section>
+    </div>
+</body>
+</html>
