@@ -23,3 +23,4 @@ switch ($action) {
         $controller->showUploadForm();
         break;
 }
+

@@ -44,3 +44,4 @@ class CategoryController
         header('Location: index.php?controller=category&action=index');
     }
 }
+

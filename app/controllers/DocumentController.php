@@ -52,3 +52,4 @@ class DocumentController {
         include _DIR_ . '/../../views/documents/status.php';
     }
 }
+
