@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../../config/config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $category = $_POST['category'] ?? null;
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $incomingNumber = 'DOC-' . date('YmdHis') . '-' . rand(1000, 9999);
     $accessCode = bin2hex(random_bytes(8));
 
-    $uploadDir = __DIR__ . '/public/uploads/';
+    $uploadDir = __DIR__ . '/../../../public/uploads/';
     $fileName = $incomingNumber . '_' . basename($file['name']);
     $filePath = $uploadDir . $fileName;
 
@@ -34,11 +34,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    $fileUrl = '/Document-Entry-System/public/uploads/' . $fileName;
     // Тук може да се добави запис в базата
     echo "<h2>✅ Успешно качен документ!</h2>";
     echo "<p><strong>Входящ номер:</strong> $incomingNumber</p>";
     echo "<p><strong>Код за достъп:</strong> $accessCode</p>";
-    echo "<p><a href='/uploads/$fileName' target='_blank'>📂 Изтегли качения файл</a></p>";
+    echo "<p><a href=$fileUrl target='_blank'>📂 Изтегли качения файл</a></p>";
 }
 ?>
 
