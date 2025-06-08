@@ -1,3 +1,9 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="bg">
 <head>
@@ -15,16 +21,24 @@
 
 <!-- Навигация -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-4">
-    <a class="navbar-brand" href="index.php">📁 Документи</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Превключване на навигация">
         <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarMain">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item"><a class="nav-link" href="index.php?controller=document&action=search">🔍 Търси документ</a></li>
-            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-                <li class="nav-item"><a class="nav-link" href="index.php?controller=admin&action=dashboard">Админ панел</a></li>
+            <?php if (isset($_SESSION['username'])): ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="index.php?controller=document&action=uploadForm">📁 Качи документ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="index.php?controller=document&action=search">🔍 Търси документ</a>
+                </li>
+                <?php if ($_SESSION['role'] === 'admin'): ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?controller=admin&action=dashboard">🛠️ Админ панел</a>
+                    </li>
+                <?php endif; ?>
             <?php endif; ?>
         </ul>
 
