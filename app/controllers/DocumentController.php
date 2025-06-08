@@ -56,6 +56,28 @@ class DocumentController
         }
     }
 
+    public function search()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $entryNumber = $_POST['entry_number'] ?? '';
+
+            if (!$entryNumber) {
+                $this->render('search', ['error' => 'Моля, въведете входящ номер за търсене.']);
+                return;
+            }
+
+            $document = $this->documentService->findByEntryNumber($entryNumber);
+
+            if ($document) {
+                $this->render('search_results', ['document' => $document]);
+            } else {
+                $this->render('search', ['error' => 'Документът не е намерен.']);
+            }
+        } else {
+            $this->render('search');
+        }
+    }
+
 
 
     public function status($id = null)

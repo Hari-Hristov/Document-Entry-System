@@ -22,7 +22,7 @@
 
     <div class="collapse navbar-collapse" id="navbarMain">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item"><a class="nav-link" href="index.php?controller=document&action=searchForm">🔍 Търси документ</a></li>
+            <li class="nav-item"><a class="nav-link" href="index.php?controller=document&action=search">🔍 Търси документ</a></li>
             <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                 <li class="nav-item"><a class="nav-link" href="index.php?controller=admin&action=dashboard">Админ панел</a></li>
             <?php endif; ?>

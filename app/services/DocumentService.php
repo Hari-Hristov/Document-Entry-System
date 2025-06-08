@@ -76,4 +76,17 @@ class DocumentService
     ];
 }
 
+ public function findByEntryNumber(string $entryNumber): ?array
+    {
+        $pdo = getDbConnection();
+
+        $stmt = $pdo->prepare("SELECT * FROM documents WHERE filename LIKE :entryNumber LIMIT 1");
+        // Понеже входящият номер е част от името на файла, използваме LIKE
+        $stmt->execute([':entryNumber' => "%$entryNumber%"]);
+
+        $document = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $document ?: null;
+    }
+
 }
