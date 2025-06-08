@@ -1,8 +1,7 @@
 <?php
 
-require_once 'Model.php';
 
-class Category extends Model {
+class Category {
 
     public function getAll() {
         $stmt = $this->db->query("SELECT * FROM categories ORDER BY name ASC");

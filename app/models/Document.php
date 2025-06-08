@@ -1,8 +1,7 @@
 <?php
 
-require_once 'Model.php';
 
-class Document extends Model {
+class Document {
     public function create($filename, $category_id, $access_code) {
         $sql = "INSERT INTO documents (filename, category_id, access_code, created_at, status)
                 VALUES (:filename, :category_id, :access_code, NOW(), 'new')";

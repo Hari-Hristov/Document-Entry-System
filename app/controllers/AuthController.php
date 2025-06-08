@@ -1,7 +1,9 @@
 <?php
 // app/controllers/AuthController.php
 
-require_once _DIR_ . '/../services/AuthService.php';
+require_once __DIR__ . '/../services/AuthService.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../helpers/render.php';
 
 class AuthController
 {
@@ -9,12 +11,13 @@ class AuthController
 
     public function __construct()
     {
-        $this->authService = new AuthService();
+        global $pdo;
+        $this->authService = new AuthService($pdo);
     }
 
     public function loginForm()
     {
-        include _DIR_ . '/../views/auth/login.php';
+        render('auth/login');
     }
 
     public function login()
@@ -26,7 +29,7 @@ class AuthController
 
         if (!$result['success']) {
             $error = $result['message'];
-            include _DIR_ . '/../views/auth/login.php';
+            render('auth/login', ['error' => $error]);
             return;
         }
 
@@ -45,34 +48,35 @@ class AuthController
         header('Location: index.php?controller=auth&action=loginForm');
         exit;
     }
-    
-    public function register() {
-    global $pdo;
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $username = $_POST['username'];
-        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-        $role = $_POST['role'];
-        $full_name = $_POST['full_name'];
+    public function register()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $username = $_POST['username'] ?? '';
+            $password = $_POST['password'] ?? '';
+            $role = $_POST['role'] ?? '';
+            $full_name = $_POST['full_name'] ?? '';
 
-        // Валидации...
-        if (!$username || !$role || !$full_name) {
-            $error = "Моля, попълнете всички полета.";
-            include __DIR__ . '/../../views/auth/register.php';
-            return;
+            if (!$username || !$password || !$role || !$full_name) {
+                $error = "Моля, попълнете всички полета.";
+                render('auth/register', ['error' => $error]);
+                return;
+            }
+
+            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+            global $pdo;
+            $stmt = $pdo->prepare("INSERT INTO users (username, password, role, full_name) VALUES (?, ?, ?, ?)");
+            try {
+                $stmt->execute([$username, $passwordHash, $role, $full_name]);
+                header("Location: index.php?controller=auth&action=loginForm");
+                exit;
+            } catch (PDOException $e) {
+                $error = "Потребителското име вече съществува.";
+                render('auth/register', ['error' => $error]);
+            }
+        } else {
+            render('auth/register');
         }
-
-        $stmt = $pdo->prepare("INSERT INTO users (username, password, role, full_name) VALUES (?, ?, ?, ?)");
-        try {
-            $stmt->execute([$username, $password, $role, $full_name]);
-            header("Location: index.php?controller=auth&action=login");
-        } catch (PDOException $e) {
-            $error = "Потребителското име вече съществува.";
-            include __DIR__ . '/../../views/auth/register.php';
-        }
-    } else {
-        include __DIR__ . '/../../views/auth/register.php';
     }
-}
-
 }

@@ -1,68 +1,33 @@
-<?php
-require_once __DIR__ . '/../../config/config.php';
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8" />
+    <title>Качване на документ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+<div class="container py-5">
+    <h1>Качи документ</h1>
+    <form method="POST" enctype="multipart/form-data" action="index.php?action=upload">
+        <div class="mb-3">
+            <label for="category" class="form-label">Избери категория</label>
+            <select id="category" name="category_id" class="form-select" required>
+                <option value="5">Без категория</option>
+                <option value="1">Отдел Студенти</option>
+                <option value="2">Учебен отдел – Магистри</option>
+                <option value="3">Кандидат-студенти</option>
+                <option value="4">Сесия</option>
+            </select>
+        </div>
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $category = $_POST['category'] ?? null;
-    $file = $_FILES['document'] ?? null;
+        <div class="mb-3">
+            <label for="document" class="form-label">Файл (.zip или .pdf)</label>
+            <input type="file" id="document" name="document" class="form-control" required />
+        </div>
 
-    if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
-        echo "⚠️ Грешка при качването.";
-        exit;
-    }
-
-    $allowedExtensions = ['zip', 'pdf'];
-    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    if (!in_array($ext, $allowedExtensions)) {
-        echo "⚠️ Неразрешен тип файл. Разрешени: .zip, .pdf";
-        exit;
-    }
-
-    $incomingNumber = 'DOC-' . date('YmdHis') . '-' . rand(1000, 9999);
-    $accessCode = bin2hex(random_bytes(8));
-
-    $uploadDir = __DIR__ . '/../../../public/uploads/';
-    $fileName = $incomingNumber . '_' . basename($file['name']);
-    $filePath = $uploadDir . $fileName;
-
-    if (!is_dir($uploadDir)) {
-        mkdir($uploadDir, 0755, true);
-    }
-
-    if (!move_uploaded_file($file['tmp_name'], $filePath)) {
-        echo "⚠️ Неуспешно местене на файла.";
-        exit;
-    }
-
-    // Запис в базата
-    $pdo = getDbConnection();
-
-    $stmt = $pdo->prepare("INSERT INTO documents (filename, category_id, access_code, created_at, status) VALUES (:filename, :category_id, :access_code, NOW(), 'new')");
-    $stmt->execute([
-        ':filename' => $fileName,
-        ':category_id' => $category ?: 0,
-        ':access_code' => $accessCode,
-    ]);
-
-    $fileUrl = '/Document-Entry-System/public/uploads/' . $fileName;
-
-    echo "<h2>✅ Успешно качен документ!</h2>";
-    echo "<p><strong>Входящ номер:</strong> $incomingNumber</p>";
-    echo "<p><strong>Код за достъп:</strong> $accessCode</p>";
-    echo "<p><a href=\"$fileUrl\" target=\"_blank\">📂 Изтегли качения файл</a></p>";
-}
-?>
-
-
-<form method="POST" enctype="multipart/form-data">
-    <label>Избери категория:</label>
-    <select name="category">
-        <option value="">-- Без категория --</option>
-        <option value="1">Отдел Студенти</option>
-        <option value="2">Сесия</option>
-    </select><br><br>
-
-    <label>Файл (.zip или .pdf):</label>
-    <input type="file" name="document" required><br><br>
-
-    <button type="submit">Качи</button>
-</form>
+        <button type="submit" class="btn btn-primary">Качи</button>
+    </form>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

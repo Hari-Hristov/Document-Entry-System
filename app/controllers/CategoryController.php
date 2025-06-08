@@ -1,7 +1,9 @@
 <?php
 // app/controllers/CategoryController.php
 
-require_once _DIR_ . '/../models/Category.php';
+require_once __DIR__ . '/../models/Category.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../helpers/render.php'; // ако render() е в отделен файл
 
 class CategoryController
 {
@@ -9,29 +11,21 @@ class CategoryController
 
     public function __construct()
     {
-        $this->categoryModel = new Category();
+        global $pdo;
+        $this->categoryModel = new Category($pdo);
     }
 
-    /**
-     * Показва списък с категории
-     */
     public function index()
     {
         $categories = $this->categoryModel->getAll();
-        include _DIR_ . '/../views/categories/index.php';
+        render('categories/index', ['categories' => $categories]);
     }
 
-    /**
-     * Показва форма за добавяне на категория
-     */
     public function create()
     {
-        include _DIR_ . '/../views/categories/create.php';
+        render('categories/create');
     }
 
-    /**
-     * Записва нова категория
-     */
     public function store()
     {
         $name = $_POST['name'] ?? '';
@@ -42,6 +36,6 @@ class CategoryController
 
         $this->categoryModel->create($name);
         header('Location: index.php?controller=category&action=index');
+        exit;
     }
 }
-

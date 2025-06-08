@@ -1,6 +1,6 @@
 <?php
 
-require_once _DIR_ . '/../services/DocumentService.php';
+require_once __DIR__ . '/../services/DocumentService.php';
 
 class DocumentController
 {
@@ -11,7 +11,26 @@ class DocumentController
         $this->documentService = new DocumentService();
     }
 
-    // Action to handle document upload
+    // Помощен метод за render с layout main.php
+    private function render(string $view, array $params = []): void
+    {
+        // Извличаме параметрите като променливи
+        extract($params);
+
+        // Заснемаме съдържанието на view в буфер
+        ob_start();
+        require __DIR__ . "/../views/documents/{$view}.php";
+        $content = ob_get_clean();
+
+        // Вкарваме съдържанието във главния layout (main.php)
+        require __DIR__ . '/../views/layouts/main.php';
+    }
+
+    public function uploadForm()
+    {
+        $this->render('upload');  // зареждаме views/documents/upload.php
+    }
+
     public function upload()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -20,47 +39,36 @@ class DocumentController
 
             $result = $this->documentService->uploadDocument($file, $categoryId);
 
-            // Simple response handling - could be JSON or redirect with session flash messages
             if ($result['success']) {
-                echo json_encode([
-                    'status' => 'success',
+                // Пример: показваме съобщение в нов изглед success.php
+                $this->render('upload', [
                     'message' => $result['message'],
                     'documentId' => $result['documentId'],
-                    'accessCode' => $result['accessCode']
+                    'accessCode' => $result['accessCode'],
                 ]);
             } else {
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => $result['message']
+                $this->render('upload', [
+                    'error' => $result['message'],
                 ]);
             }
         } else {
-            // Display upload form (if not an API)
-            require_once _DIR_ . '/../views/document_upload.php';
+            $this->showUploadForm();
         }
     }
 
-    // Action to check document status by access code
-    public function status()
+    public function status($id = null)
     {
         if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['access_code'])) {
             $accessCode = $_GET['access_code'];
             $document = $this->documentService->getDocumentStatus($accessCode);
 
             if ($document) {
-                echo json_encode([
-                    'status' => 'success',
-                    'document' => $document
-                ]);
+                $this->render('status', ['document' => $document]);
             } else {
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Документът не е намерен.'
-                ]);
+                $this->render('status', ['error' => 'Документът не е намерен.']);
             }
         } else {
-            // Optionally show a form to input access code
-            require_once _DIR_ . '/../views/document_status.php';
+            $this->render('status');
         }
     }
 }

@@ -1,9 +1,7 @@
 <?php
 // app/models/User.php
 
-require_once 'Model.php';
-
-class User extends Model {
+class User {
 
     public function getById($id) {
         $stmt = $this->db->prepare("SELECT * FROM users WHERE id = :id");

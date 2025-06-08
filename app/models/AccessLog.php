@@ -1,8 +1,7 @@
 <?php
 
-require_once 'Model.php';
 
-class AccessLog extends Model {
+class AccessLog{
 
     public function log($document_id, $action, $user_id = null) {
         $stmt = $this->db->prepare("
