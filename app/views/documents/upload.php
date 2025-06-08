@@ -24,7 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fileName = $incomingNumber . '_' . basename($file['name']);
     $filePath = $uploadDir . $fileName;
 
-    // Създай директория, ако не съществува
     if (!is_dir($uploadDir)) {
         mkdir($uploadDir, 0755, true);
     }
@@ -34,14 +33,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // Запис в базата
+    $pdo = getDbConnection();
+
+    $stmt = $pdo->prepare("INSERT INTO documents (filename, category_id, access_code, created_at, status) VALUES (:filename, :category_id, :access_code, NOW(), 'new')");
+    $stmt->execute([
+        ':filename' => $fileName,
+        ':category_id' => $category ?: 0,
+        ':access_code' => $accessCode,
+    ]);
+
     $fileUrl = '/Document-Entry-System/public/uploads/' . $fileName;
-    // Тук може да се добави запис в базата
+
     echo "<h2>✅ Успешно качен документ!</h2>";
     echo "<p><strong>Входящ номер:</strong> $incomingNumber</p>";
     echo "<p><strong>Код за достъп:</strong> $accessCode</p>";
-    echo "<p><a href=$fileUrl target='_blank'>📂 Изтегли качения файл</a></p>";
+    echo "<p><a href=\"$fileUrl\" target=\"_blank\">📂 Изтегли качения файл</a></p>";
 }
 ?>
+
 
 <form method="POST" enctype="multipart/form-data">
     <label>Избери категория:</label>
