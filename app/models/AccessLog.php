@@ -21,4 +21,24 @@ class AccessLog extends Model {
         $stmt->execute([':doc' => $document_id]);
         return $stmt->fetchAll();
     }
+
+    public static function create(int $documentId, ?int $userId, string $action, int $duration = 0): void {
+        global $pdo;
+        $stmt = $pdo->prepare("
+            INSERT INTO logs (document_id, performed_by, action, duration_sec)
+            VALUES (?, ?, ?, ?)
+        ");
+        $stmt->execute([$documentId, $userId, $action, $duration]);
+    }
+
+    public static function statsByDocument(int $documentId): array {
+        global $pdo;
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) as views, SUM(duration_sec) as total_time
+            FROM logs
+            WHERE document_id = ? AND action = 'open'
+        ");
+        $stmt->execute([$documentId]);
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
 }

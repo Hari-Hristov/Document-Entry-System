@@ -1,56 +1,99 @@
-/* Основни стилове */
+/* === Основни стилове === */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
-    margin: 0;
-    padding: 0;
+    background-color: #f7f9fc;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+h1, h2, h3 {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-top: 20px;
 }
 
 .container {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    max-width: 1000px;
 }
 
-h1, h2 {
-    color: #2c3e50;
+/* === Таблици === */
+.table th, .table td {
+    vertical-align: middle;
+    text-align: center;
 }
 
-label {
-    display: block;
-    margin-top: 10px;
-    margin-bottom: 4px;
+.table th {
+    background-color: #f0f0f0;
     font-weight: bold;
 }
 
-input[type="text"],
-input[type="file"],
-select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9fbfd;
+}
+
+/* === Buttons === */
+.btn {
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.btn-outline-primary:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.btn-outline-warning:hover {
+    background-color: #ffc107;
+    color: #000;
+}
+
+/* === Баджове и статуси === */
+.badge {
+    font-size: 0.9em;
+    padding: 0.4em 0.6em;
+}
+
+/* === Форми === */
+input, select, button {
     border-radius: 4px;
 }
 
-button {
-    margin-top: 15px;
-    padding: 10px 15px;
-    background-color: #2980b9;
-    color: #fff;
+input[type="file"]::file-selector-button {
+    background-color: #007bff;
+    color: white;
     border: none;
+    padding: 0.4em 1em;
+    margin-right: 10px;
     border-radius: 4px;
     cursor: pointer;
 }
 
-button:hover {
-    background-color: #3498db;
+input[type="file"]::file-selector-button:hover {
+    background-color: #0056b3;
 }
 
-hr {
-    margin: 30px 0;
-    border: none;
-    border-top: 1px solid #ddd;
+/* === Изглед за съобщения === */
+.alert {
+    border-radius: 4px;
+    font-size: 15px;
+    margin-top: 15px;
+}
+
+/* === Responsive grid override === */
+@media (max-width: 768px) {
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .navbar-brand {
+        font-size: 18px;
+    }
+
+    .container {
+        padding: 10px;
+    }
+
+    h2 {
+        font-size: 22px;
+    }
 }

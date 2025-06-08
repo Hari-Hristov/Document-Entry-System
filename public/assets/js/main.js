@@ -20,3 +20,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    const input = document.getElementById("searchInput");
+    const rows = document.querySelectorAll("#docTable tbody tr");
+
+    input?.addEventListener("input", function () {
+        const val = input.value.toLowerCase();
+        rows.forEach(row => {
+            const match = row.textContent.toLowerCase().includes(val);
+            row.style.display = match ? "" : "none";
+        });
+    });
+});

@@ -1,55 +1,66 @@
 <?php
 
-require_once _DIR_ . '/../models/Document.php';
+require_once _DIR_ . '/../services/DocumentService.php';
 
-class DocumentController {
+class DocumentController
+{
+    private DocumentService $documentService;
 
-    protected $documentModel;
-
-    public function __construct() {
-        $this->documentModel = new Document();
+    public function __construct()
+    {
+        $this->documentService = new DocumentService();
     }
 
-    public function showUploadForm() {
-        include _DIR_ . '/../../views/documents/upload.php';
-    }
+    // Action to handle document upload
+    public function upload()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $file = $_FILES['document'] ?? null;
+            $categoryId = $_POST['category_id'] ?? null;
 
-    public function upload() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['document'])) {
-            $file = $_FILES['document'];
+            $result = $this->documentService->uploadDocument($file, $categoryId);
 
-            $allowedTypes = ['application/pdf', 'application/zip', 'text/html'];
-            if (!in_array($file['type'], $allowedTypes)) {
-                die('Невалиден файлов формат.');
-            }
-
-            $filename = uniqid() . '_' . basename($file['name']);
-            $target = UPLOAD_DIR . $filename;
-
-            if (move_uploaded_file($file['tmp_name'], $target)) {
-                $category_id = intval($_POST['category_id'] ?? 0);
-                $access_code = bin2hex(random_bytes(8));
-                $docId = $this->documentModel->create($filename, $category_id, $access_code);
-
-                echo "Документът е качен успешно! Входящ номер: {$docId}, Код за достъп: {$access_code}";
+            // Simple response handling - could be JSON or redirect with session flash messages
+            if ($result['success']) {
+                echo json_encode([
+                    'status' => 'success',
+                    'message' => $result['message'],
+                    'documentId' => $result['documentId'],
+                    'accessCode' => $result['accessCode']
+                ]);
             } else {
-                echo "Грешка при качване на файла.";
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => $result['message']
+                ]);
             }
+        } else {
+            // Display upload form (if not an API)
+            require_once _DIR_ . '/../views/document_upload.php';
         }
     }
 
-    public function status($idOrCode) {
-        $document = $this->documentModel->getById($idOrCode);
-        if (!$document) {
-            $document = $this->documentModel->getByAccessCode($idOrCode);
-        }
+    // Action to check document status by access code
+    public function status()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['access_code'])) {
+            $accessCode = $_GET['access_code'];
+            $document = $this->documentService->getDocumentStatus($accessCode);
 
-        if (!$document) {
-            echo "Документът не е намерен.";
-            return;
+            if ($document) {
+                echo json_encode([
+                    'status' => 'success',
+                    'document' => $document
+                ]);
+            } else {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Документът не е намерен.'
+                ]);
+            }
+        } else {
+            // Optionally show a form to input access code
+            require_once _DIR_ . '/../views/document_status.php';
         }
-
-        include _DIR_ . '/../../views/documents/status.php';
     }
 }
-
