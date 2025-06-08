@@ -24,15 +24,20 @@ class DocumentService
             return ['success' => false, 'message' => 'Грешка при качване на файл.', 'documentId' => null, 'accessCode' => null];
         }
 
-        // Сигурно име на файла
         $filename = Helper::sanitizeFilename($file['name']);
-        $destination = UPLOAD_PATH . '/' . $filename;
+        $uploadDir = __DIR__ . '/../public/uploads';
+
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        $destination = $uploadDir . '/' . $filename;
 
         if (!move_uploaded_file($file['tmp_name'], $destination)) {
+            error_log("Failed to move uploaded file from {$file['tmp_name']} to $destination");
             return ['success' => false, 'message' => 'Неуспешно записване на файла.', 'documentId' => null, 'accessCode' => null];
         }
 
-        // Генериране на уникален входящ номер и код за достъп
         $accessCode = Helper::generateCode(10);
 
         $documentId = $this->documentModel->create($filename, $categoryId, $accessCode);
@@ -43,6 +48,7 @@ class DocumentService
 
         return ['success' => true, 'message' => 'Документът е качен успешно.', 'documentId' => $documentId, 'accessCode' => $accessCode];
     }
+
 
     /**
      * Връща информация за документа по входящ номер или код за достъп
