@@ -18,8 +18,10 @@ CREATE TABLE users (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
     role ENUM('admin', 'moderator', 'user') DEFAULT 'user'
 );
+
 
 CREATE TABLE access_logs (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

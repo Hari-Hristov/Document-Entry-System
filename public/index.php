@@ -13,6 +13,7 @@ require_once __DIR__ . '/../app/controllers/AuthController.php';
 $controllerName = $_GET['controller'] ?? 'document';
 $action = $_GET['action'] ?? 'uploadForm';
 $id = $_GET['id'] ?? null;
+$pdo = getDbConnection();
 
 switch ($controllerName) {
     case 'document':
@@ -22,7 +23,7 @@ switch ($controllerName) {
         $controller = new CategoryController();
         break;
     case 'auth':
-        $controller = new AuthController();
+        $controller = new AuthController($pdo);
         break;
     default:
         http_response_code(404);

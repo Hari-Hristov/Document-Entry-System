@@ -22,8 +22,7 @@
 
     <div class="collapse navbar-collapse" id="navbarMain">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item"><a class="nav-link" href="index.php?controller=document&action=list">Всички документи</a></li>
-            <li class="nav-item"><a class="nav-link" href="index.php?controller=category&action=list">Категории</a></li>
+            <li class="nav-item"><a class="nav-link" href="index.php?controller=document&action=searchForm">🔍 Търси документ</a></li>
             <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                 <li class="nav-item"><a class="nav-link" href="index.php?controller=admin&action=dashboard">Админ панел</a></li>
             <?php endif; ?>
@@ -38,6 +37,9 @@
                     <a class="btn btn-outline-light" href="index.php?controller=auth&action=logout">Изход</a>
                 </li>
             <?php else: ?>
+                <li class="nav-item me-2">
+                    <a class="btn btn-outline-light" href="index.php?controller=auth&action=register">Регистрация</a>
+                </li>
                 <li class="nav-item">
                     <a class="btn btn-outline-light" href="index.php?controller=auth&action=loginForm">Вход</a>
                 </li>

@@ -9,9 +9,8 @@ class AuthController
 {
     private AuthService $authService;
 
-    public function __construct()
+    public function __construct(PDO $pdo)
     {
-        global $pdo;
         $this->authService = new AuthService($pdo);
     }
 
@@ -50,33 +49,44 @@ class AuthController
     }
 
     public function register()
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = $_POST['username'] ?? '';
-            $password = $_POST['password'] ?? '';
-            $role = $_POST['role'] ?? '';
-            $full_name = $_POST['full_name'] ?? '';
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $username = $_POST['username'] ?? '';
+        $password = $_POST['password'] ?? '';
+        $role = $_POST['role'] ?? 'user';
+        $fullName = $_POST['full_name'] ?? '';
 
-            if (!$username || !$password || !$role || !$full_name) {
-                $error = "Моля, попълнете всички полета.";
-                render('auth/register', ['error' => $error]);
+        if (!$username || !$password || !$fullName) {
+            $error = "Моля, попълнете всички задължителни полета.";
+            render('auth/register', ['error' => $error]);
+            return;
+        }
+
+        $success = $this->authService->register($username, $password, $role, $fullName);
+
+        if ($success) {
+            // автоматично логване след регистрация
+            $result = $this->authService->login($username, $password);
+            if ($result['success']) {
+                session_start();
+                $_SESSION['user_id'] = $result['user']['id'];
+                $_SESSION['username'] = $result['user']['username'];
+                $_SESSION['role'] = $result['user']['role'];
+
+                header('Location: index.php');
+                exit;
+            } else {
+                $error = "Регистрацията мина успешно, но автоматичното логване се провали.";
+                render('auth/login', ['error' => $error]);
                 return;
             }
-
-            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-
-            global $pdo;
-            $stmt = $pdo->prepare("INSERT INTO users (username, password, role, full_name) VALUES (?, ?, ?, ?)");
-            try {
-                $stmt->execute([$username, $passwordHash, $role, $full_name]);
-                header("Location: index.php?controller=auth&action=loginForm");
-                exit;
-            } catch (PDOException $e) {
-                $error = "Потребителското име вече съществува.";
-                render('auth/register', ['error' => $error]);
-            }
         } else {
-            render('auth/register');
+            $error = "Регистрацията неуспешна (възможно потребителското име вече съществува).";
+            render('auth/register', ['error' => $error]);
         }
+    } else {
+        render('auth/register');
     }
+}
+
 }
