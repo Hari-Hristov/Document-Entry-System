@@ -8,6 +8,19 @@
 <body>
 <div class="container py-5">
     <h1>Качи документ</h1>
+
+    <?php if (!empty($error)): ?>
+        <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+    <?php endif; ?>
+
+    <?php if (!empty($success) && !empty($entry_number)): ?>
+        <div class="alert alert-success">
+            Документът е качен успешно!<br>
+            <strong>Входящ номер: <?= htmlspecialchars($entry_number) ?></strong>
+            <button class="btn btn-sm btn-outline-secondary mt-2" onclick="navigator.clipboard.writeText('<?= htmlspecialchars($entry_number) ?>')">Копирай</button>
+        </div>
+    <?php endif; ?>
+
     <form method="POST" enctype="multipart/form-data" action="index.php?action=upload">
         <div class="mb-3">
             <label for="category" class="form-label">Избери категория</label>

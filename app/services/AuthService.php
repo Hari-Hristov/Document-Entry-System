@@ -20,7 +20,7 @@ class AuthService
             return ['success' => false, 'message' => 'Потребителят не е намерен.', 'user' => null];
         }
 
-        if (!password_verify($password, $user['password'])) {  // паролата в БД е в полето "password"
+        if (!password_verify($password, $user['password'])) { 
             return ['success' => false, 'message' => 'Невалидна парола.', 'user' => null];
         }
 

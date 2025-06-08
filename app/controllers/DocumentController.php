@@ -40,21 +40,23 @@ class DocumentController
             $result = $this->documentService->uploadDocument($file, $categoryId);
 
             if ($result['success']) {
-                // Пример: показваме съобщение в нов изглед success.php
+                // Показваме съобщение със входящ номер и код за достъп
                 $this->render('upload', [
-                    'message' => $result['message'],
-                    'documentId' => $result['documentId'],
-                    'accessCode' => $result['accessCode'],
+                    'success' => true,
+                    'entry_number' => $result['incomingNumber'],  // поправено да показва входящия номер
+                    'access_code' => $result['accessCode'],
                 ]);
             } else {
                 $this->render('upload', [
-                    'error' => $result['message'],
+                    'error' => $result['message']
                 ]);
             }
         } else {
-            $this->showUploadForm();
+            $this->uploadForm();
         }
     }
+
+
 
     public function status($id = null)
     {

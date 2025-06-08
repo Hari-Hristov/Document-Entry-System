@@ -43,6 +43,7 @@
                 <option value="">-- Избери роля --</option>
                 <option value="admin">Администратор</option>
                 <option value="category_manager">Отговарящ</option>
+                <option value="user">Обикновен потребител</option>
             </select>
 
             <button type="submit">Регистрирай се</button>
