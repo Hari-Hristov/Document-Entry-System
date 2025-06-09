@@ -26,7 +26,10 @@ CREATE TABLE users (
 CREATE TABLE access_logs (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     document_id INT NOT NULL,
-    user_id INT DEFAULT NULL,
+    user_id INT UNSIGNED DEFAULT NULL,
     action VARCHAR(100) NOT NULL,
     accessed_at DATETIME NOT NULL
 );
+
+ALTER TABLE access_logs
+ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id);

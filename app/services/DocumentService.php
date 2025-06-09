@@ -65,6 +65,7 @@ class DocumentService
     }
 
     $documentId = $pdo->lastInsertId();
+    $this->logAction($_SESSION['user_id'] ?? null, $documentId, 'upload');
 
     return [
         'success' => true,
@@ -88,5 +89,20 @@ class DocumentService
 
         return $document ?: null;
     }
+
+    private function logAction(?int $userId, int $documentId, string $action): void
+    {
+        $pdo = getDbConnection();
+        $stmt = $pdo->prepare("
+            INSERT INTO access_logs (document_id, user_id, action, accessed_at)
+            VALUES (:document_id, :user_id, :action, NOW())
+        ");
+        $stmt->execute([
+            ':document_id' => $documentId,
+            ':user_id' => $userId,
+            ':action' => $action
+        ]);
+    }
+
 
 }

@@ -21,7 +21,7 @@
         </div>
     <?php endif; ?>
 
-    <form method="POST" enctype="multipart/form-data" action="index.php?action=upload">
+    <form method="POST" enctype="multipart/form-data" action="index.php?controller=document&action=upload">
         <div class="mb-3">
             <label for="category" class="form-label">Избери категория</label>
             <select id="category" name="category_id" class="form-select" required>

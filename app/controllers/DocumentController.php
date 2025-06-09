@@ -71,8 +71,30 @@ class DocumentController
             $document = $this->documentService->findByEntryNumber($entryNumber);
 
             if ($document) {
+                if ($document && isset($document['id'])) {
+                    $pdo = getDbConnection();
+                    $stmt = $pdo->prepare("
+                        INSERT INTO access_logs (document_id, user_id, action, accessed_at)
+                        VALUES (:document_id, :user_id, 'search', NOW())
+                    ");
+                    $stmt->execute([
+                        ':document_id' => $document['id'],
+                        ':user_id' => $_SESSION['user_id'] ?? null
+                    ]);
+                }
                 render('documents/search_results', ['document' => $document]);
             } else {
+                if ($document && isset($document['id'])) {
+                    $pdo = getDbConnection();
+                    $stmt = $pdo->prepare("
+                        INSERT INTO access_logs (document_id, user_id, action, accessed_at)
+                        VALUES (:document_id, :user_id, 'search', NOW())
+                    ");
+                    $stmt->execute([
+                        ':document_id' => $document['id'],
+                        ':user_id' => $_SESSION['user_id'] ?? null
+                    ]);
+                }
                 render('documents/search', ['error' => 'Документът не е намерен.']);
             }
         } else {
