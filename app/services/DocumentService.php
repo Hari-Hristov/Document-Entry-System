@@ -5,7 +5,7 @@ require_once __DIR__ . '/../config/config.php';  // за getDbConnection()
 
 class DocumentService
 {
-    public function uploadDocument(?array $file, ?int $categoryId): array
+   public function uploadDocument(?array $file, ?int $categoryId): array
 {
     if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
         return [
@@ -43,39 +43,63 @@ class DocumentService
         ];
     }
 
-    // Запис в базата
     $pdo = getDbConnection();
+    $userId = $_SESSION['user_id'] ?? null;
 
-    $stmt = $pdo->prepare("
-        INSERT INTO documents (filename, category_id, access_code, created_at, status)
-        VALUES (:filename, :category_id, :access_code, NOW(), 'new')
-    ");
+    // Проверка дали потребителят е отговорник на категорията
+    $stmt = $pdo->prepare("SELECT responsible_user_id FROM categories WHERE id = ?");
+    $stmt->execute([$categoryId]);
+    $responsibleUserId = $stmt->fetchColumn();
 
-    $success = $stmt->execute([
-        ':filename' => $fileName,
-        ':category_id' => $categoryId ?: 5,
-        ':access_code' => $accessCode,
-    ]);
+    if ($responsibleUserId && $responsibleUserId == $userId) {
+        // Ако е отговорник -> директно в documents
+        $stmt = $pdo->prepare("
+            INSERT INTO document_requests (filename, category_id, uploaded_by_user_id, uploaded_at, created_at)
+            VALUES (:filename, :category_id, :user_id, NOW(), NOW())
+        ");
 
-    if (!$success) {
+
+        $stmt->execute([
+            ':filename' => $fileName,
+            ':category_id' => $categoryId,
+            ':access_code' => $accessCode,
+            ':user_id' => $userId
+        ]);
+
+        $documentId = $pdo->lastInsertId();
+        $this->logAction($userId, $documentId, 'upload');
+
         return [
-            'success' => false,
-            'message' => 'Грешка при запис в базата данни.'
+            'success' => true,
+            'message' => 'Документът е качен успешно.',
+            'documentId' => $documentId,
+            'incomingNumber' => $incomingNumber,
+            'accessCode' => $accessCode,
+            'fileName' => $fileName
+        ];
+    } else {
+        // Ако НЕ е отговорник -> заявка в document_requests
+        $stmt = $pdo->prepare("
+            INSERT INTO document_requests (filename, category_id, uploaded_by_user_id, uploaded_at)
+            VALUES (:filename, :category_id, :user_id, NOW())
+        ");
+
+        $stmt->execute([
+            ':filename' => $fileName,
+            ':category_id' => $categoryId,
+            ':user_id' => $userId
+        ]);
+
+        return [
+            'success' => true,
+            'message' => 'Заявката е изпратена за одобрение от отговорника.',
+            'incomingNumber' => $incomingNumber,
+            'accessCode' => 'Ще бъде генериран при одобрение',
+            'fileName' => $fileName
         ];
     }
-
-    $documentId = $pdo->lastInsertId();
-    $this->logAction($_SESSION['user_id'] ?? null, $documentId, 'upload');
-
-    return [
-        'success' => true,
-        'message' => 'Документът е успешно качен.',
-        'documentId' => $documentId,          // за вътрешна употреба
-        'incomingNumber' => $incomingNumber,  // за потребителя
-        'accessCode' => $accessCode,          // за потребителя
-        'fileName' => $fileName
-    ];
 }
+
 
  public function findByEntryNumber(string $entryNumber): ?array
     {

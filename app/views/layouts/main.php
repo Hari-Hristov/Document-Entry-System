@@ -34,6 +34,11 @@ if (session_status() === PHP_SESSION_NONE) {
                 <li class="nav-item">
                     <a class="nav-link" href="index.php?controller=document&action=search">🔍 Търси документ</a>
                 </li>
+                <?php if ($_SESSION['role'] === 'responsible'): ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?controller=requests&action=index">📋 Заявки</a>
+                    </li>
+                <?php endif; ?>
                 <?php if ($_SESSION['role'] === 'admin'): ?>
                     <li class="nav-item">
                         <a class="nav-link" href="index.php?controller=admin&action=dashboard">🛠️ Админ панел</a>
