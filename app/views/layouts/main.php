@@ -15,7 +15,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/assets/css/style.css" />
+    <link href="/Document-Entry-System/public/assets/css/style.css" rel="stylesheet" />
 </head>
 <body>
 
@@ -25,7 +25,7 @@ if (session_status() === PHP_SESSION_NONE) {
         <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="navbarMain">
+    <section class="collapse navbar-collapse" id="navbarMain">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <?php if (isset($_SESSION['username'])): ?>
                 <li class="nav-item">
@@ -34,6 +34,11 @@ if (session_status() === PHP_SESSION_NONE) {
                 <li class="nav-item">
                     <a class="nav-link" href="index.php?controller=document&action=search">🔍 Търси документ</a>
                 </li>
+                <?php if ($_SESSION['role'] === 'user'): ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?controller=document&action=myDocuments">🗂️ Моите документи</a>
+                    </li>
+                <?php endif; ?>
                 <?php if ($_SESSION['role'] === 'responsible'): ?>
                     <li class="nav-item">
                         <a class="nav-link" href="index.php?controller=requests&action=index">📋 Заявки</a>
@@ -50,7 +55,7 @@ if (session_status() === PHP_SESSION_NONE) {
         <ul class="navbar-nav ms-auto">
             <?php if (isset($_SESSION['username'])): ?>
                 <li class="nav-item">
-                    <span class="navbar-text text-white me-3">Здравей, <?= htmlspecialchars($_SESSION['username']) ?></span>
+                    <span class="navbar-text text-white me-3">Здравей, <?= htmlspecialchars($_SESSION['username']) ?> 👋</span>
                 </li>
                 <li class="nav-item">
                     <a class="btn btn-outline-light" href="index.php?controller=auth&action=logout">Изход</a>
@@ -64,7 +69,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 </li>
             <?php endif; ?>
         </ul>
-    </div>
+    </section>
 </nav>
 
 <!-- Основно съдържание -->
