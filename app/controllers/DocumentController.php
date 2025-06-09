@@ -39,8 +39,9 @@ class DocumentController
             if ($result['success']) {
                 render('documents/upload', [
                     'success' => true,
-                    'entry_number' => $result['incomingNumber'],
-                    'access_code' => $result['accessCode'],
+                    'entry_number' => $result['incomingNumber'] ?? '',
+                    'access_code' => $result['accessCode'] ?? '',
+                    'message' => $result['message'] ?? ''
                 ]);
             } else {
                 render('documents/upload', [
@@ -100,6 +101,19 @@ class DocumentController
         } else {
             render('documents/search');
         }
+    }
+
+    public function myDocuments()
+    {
+        if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'user') {
+            header('Location: index.php?controller=auth&action=loginForm');
+            exit;
+        }
+
+        $userId = $_SESSION['user_id'];
+        $documents = $this->documentService->getDocumentsByUser($userId);
+
+        render('documents/my_documents', ['documents' => $documents]);
     }
 
     public function status($id = null)
