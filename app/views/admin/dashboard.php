@@ -5,7 +5,7 @@
         <tr>
             <th>Потребител</th>
             <th>Действие</th>
-            <th>ID на документ</th>
+            <th>Входен номер на документ</th>
             <th>Дата и час</th>
         </tr>
     </thead>
@@ -14,7 +14,7 @@
             <tr>
                 <td><?= htmlspecialchars($log['username'] ?? 'Анонимен') ?></td>
                 <td><?= htmlspecialchars($log['action']) ?></td>
-                <td><?= htmlspecialchars($log['document_id']) ?></td>
+                <td><?= htmlspecialchars($log['access_code'] ?? '-') ?></td>
                 <td><?= htmlspecialchars($log['accessed_at']) ?></td>
             </tr>
         <?php endforeach; ?>

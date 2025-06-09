@@ -1,43 +1,53 @@
 <?php
 
 
-class AccessLog{
+class AccessLog
+{
+    private PDO $db;
 
-    public function log($document_id, $action, $user_id = null) {
+    public function __construct(PDO $pdo)
+    {
+        $this->db = $pdo;
+    }
+
+    public function log(int $documentId, string $action, ?int $userId = null): void
+    {
         $stmt = $this->db->prepare("
             INSERT INTO access_logs (document_id, action, user_id, accessed_at)
             VALUES (:doc, :action, :uid, NOW())
         ");
         $stmt->execute([
-            ':doc' => $document_id,
+            ':doc' => $documentId,
             ':action' => $action,
-            ':uid' => $user_id
+            ':uid' => $userId
         ]);
     }
 
-    public function getByDocument($document_id) {
-        $stmt = $this->db->prepare("SELECT * FROM access_logs WHERE document_id = :doc ORDER BY accessed_at DESC");
-        $stmt->execute([':doc' => $document_id]);
-        return $stmt->fetchAll();
-    }
+    public function getByDocument(int $documentId): array
+{
+    $stmt = $this->db->prepare("
+        SELECT al.*, u.username, d.access_code
+        FROM access_logs al
+        LEFT JOIN users u ON al.user_id = u.id
+        LEFT JOIN documents d ON al.document_id = d.id
+        WHERE al.document_id = :doc
+        ORDER BY al.accessed_at DESC
+    ");
+    $stmt->execute([':doc' => $documentId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
-    public static function create(int $documentId, ?int $userId, string $action, int $duration = 0): void {
-        global $pdo;
-        $stmt = $pdo->prepare("
-            INSERT INTO logs (document_id, performed_by, action, duration_sec)
-            VALUES (?, ?, ?, ?)
-        ");
-        $stmt->execute([$documentId, $userId, $action, $duration]);
-    }
+public function getAll(): array
+{
+    $stmt = $this->db->prepare("
+        SELECT al.*, u.username, d.access_code
+        FROM access_logs al
+        LEFT JOIN users u ON al.user_id = u.id
+        LEFT JOIN documents d ON al.document_id = d.id
+        ORDER BY al.accessed_at DESC
+    ");
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
-    public static function statsByDocument(int $documentId): array {
-        global $pdo;
-        $stmt = $pdo->prepare("
-            SELECT COUNT(*) as views, SUM(duration_sec) as total_time
-            FROM logs
-            WHERE document_id = ? AND action = 'open'
-        ");
-        $stmt->execute([$documentId]);
-        return $stmt->fetch(\PDO::FETCH_ASSOC);
-    }
 }
