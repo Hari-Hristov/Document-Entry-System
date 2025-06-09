@@ -23,4 +23,16 @@ class User
         $stmt = $this->db->prepare("INSERT INTO users (username, password, role, full_name) VALUES (?, ?, ?, ?)");
         return $stmt->execute([$username, $passwordHash, $role, $fullName]);
     }
+
+    public function getById(int $id)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getLastInsertId(): string
+    {
+        return $this->db->lastInsertId();
+    }
 }

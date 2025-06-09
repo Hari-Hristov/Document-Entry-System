@@ -23,4 +23,10 @@ $routes = [
         'togglePause' => 'AdminController@togglePause',
     ],
     
+    'responsible' => [
+        'dashboard' => 'ResponsibleController@dashboard',
+        'accept' => 'ResponsibleController@accept',
+        'reject' => 'ResponsibleController@reject',
+    ],
+
 ];

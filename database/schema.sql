@@ -19,7 +19,7 @@ CREATE TABLE users (
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     full_name VARCHAR(255) NOT NULL,
-    role ENUM('admin', 'moderator', 'user') DEFAULT 'user'
+    role ENUM('admin', 'responsible', 'user') DEFAULT 'user'
 );
 
 

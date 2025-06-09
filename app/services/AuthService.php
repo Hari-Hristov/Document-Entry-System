@@ -27,10 +27,14 @@ class AuthService
         return ['success' => true, 'message' => 'Успешен вход.', 'user' => $user];
     }
 
-    public function register(string $username, string $password, string $role = 'user', string $fullName = ''): bool
-    {
-        return $this->userModel->create($username, $password, $role, $fullName);
+   public function register(string $username, string $password, string $role = 'user', string $fullName = ''): ?int
+{
+    $result = $this->userModel->create($username, $password, $role, $fullName);
+    if ($result) {
+        return (int)$this->userModel->getLastInsertId();
     }
+    return null;
+}
 
     public static function isAuthenticated(): bool
     {

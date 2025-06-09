@@ -10,6 +10,7 @@ require_once __DIR__ . '/../app/controllers/DocumentController.php';
 require_once __DIR__ . '/../app/controllers/CategoryController.php';
 require_once __DIR__ . '/../app/controllers/AuthController.php';
 require_once __DIR__ . '/../app/controllers/AdminController.php';
+require_once __DIR__ . '/../app/controllers/ResponsibleController.php';
 
 $controllerName = $_GET['controller'] ?? 'auth';
 $action = $_GET['action'] ?? 'loginForm';
@@ -29,6 +30,9 @@ switch ($controllerName) {
         break;
     case 'admin':
         $controller = new AdminController($pdo);
+        break;
+    case 'responsible':
+        $controller = new ResponsibleController($pdo);
         break;
     default:
         http_response_code(404);
