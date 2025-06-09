@@ -33,3 +33,16 @@ CREATE TABLE access_logs (
 
 ALTER TABLE access_logs
 ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id);
+
+CREATE TABLE document_requests (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    filename VARCHAR(255) NOT NULL,
+    category_id INT UNSIGNED NOT NULL,
+    uploaded_by_user_id INT UNSIGNED NOT NULL,
+    uploaded_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
+    PRIMARY KEY (id),
+    FOREIGN KEY (category_id) REFERENCES categories(id),
+    FOREIGN KEY (uploaded_by_user_id) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+

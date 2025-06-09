@@ -23,6 +23,8 @@ class AdminController
         }
 
         $logs = $this->adminService->getAccessLogs();
+
         render('admin/dashboard', ['logs' => $logs]);
     }
+
 }
