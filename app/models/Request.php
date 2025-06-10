@@ -50,7 +50,7 @@ class Request
     // Генерираме код за достъп
     $accessCode = bin2hex(random_bytes(8));
 
-    // Вмъкваме в таблицата с документи (без uploaded_by_user_id)
+    // Вмъкваме в таблицата с документи
     $stmt = $this->db->prepare("
         INSERT INTO documents (user_id, filename, category_id, access_code, created_at, status)
         VALUES (?, ?, ?, ?, NOW(), 'new')
@@ -67,6 +67,14 @@ class Request
     if (!$result) {
         return false;
     }
+
+    // Вземаме ID на новия документ
+    $documentId = $this->db->lastInsertId();
+
+    // Логваме действието
+    require_once __DIR__ . '/../models/AccessLog.php';
+    $log = new AccessLog($this->db);
+    $log->log($documentId, 'approved_upload', $request['uploaded_by_user_id']);
 
     // Изтриваме заявката
     $stmt = $this->db->prepare("DELETE FROM document_requests WHERE id = ?");
