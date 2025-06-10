@@ -69,7 +69,7 @@ class DocumentController
                 return;
             }
 
-            $document = $this->documentService->findByEntryNumber($entryNumber);
+            $document = $this->documentService->findByIncomingNumber($entryNumber);
 
             if ($document) {
                 if ($document && isset($document['id'])) {

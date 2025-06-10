@@ -81,7 +81,7 @@ class DocumentService
                 'documentId' => $documentId,
                 'accessCode' => $accessCode,
                 'fileName' => $fileName,
-                'incomingNumber' => $entryNumber
+                'incomingNumber' => $accessCode
             ];
         } else {
             $stmt = $pdo->prepare("
@@ -100,28 +100,26 @@ class DocumentService
                 'message' => 'Заявката е изпратена за одобрение от отговорника.',
                 'accessCode' => 'Ще бъде генериран при одобрение',
                 'fileName' => $fileName,
-                'incomingNumber' => $entryNumber
+                'incomingNumber' => $access_code
             ];
         }
     }
 
     /**
-     * Намира документ по входящ номер.
-     * Използва LIKE, тъй като входящият номер е част от името на файла.
+    * Намира документ по входящ номер (incomingNumber = access_code).
      *
-     * @param string $entryNumber - входящ номер за търсене
+     * @param string $incomingNumber - входящ номер (access_code)
      * @return array|null - информация за документа или null, ако не е намерен
      */
-    public function findByEntryNumber(string $entryNumber): ?array
+    public function findByIncomingNumber(string $incomingNumber): ?array
     {
         $pdo = getDbConnection();
-
-        $stmt = $pdo->prepare("SELECT * FROM documents WHERE filename LIKE :entryNumber LIMIT 1");
-        // Понеже входящият номер е част от името на файла, използваме LIKE
-        $stmt->execute([':entryNumber' => "%$entryNumber%"]);
-
+    
+        $stmt = $pdo->prepare("SELECT * FROM documents WHERE access_code = :incomingNumber LIMIT 1");
+        $stmt->execute([':incomingNumber' => $incomingNumber]);
+    
         $document = $stmt->fetch(PDO::FETCH_ASSOC);
-
+    
         return $document ?: null;
     }
 
@@ -129,7 +127,7 @@ class DocumentService
     {
         $pdo = getDbConnection();
         $stmt = $pdo->prepare("
-            INSERT INTO access_logs (document_id, user_id, action, accessed_at)
+            INSERT INTO access_logs (document_id, user_id, action, accessed_at)_
             VALUES (:document_id, :user_id, :action, NOW())
         ");
         $stmt->execute([

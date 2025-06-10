@@ -17,7 +17,7 @@
         <tbody>
             <?php foreach ($documents as $doc): ?>
                 <tr>
-                    <td><?= htmlspecialchars($doc['filename']) ?></td>
+                    <td><?= htmlspecialchars($doc['access_code']) ?></td>
                     <td><?= htmlspecialchars($doc['filename']) ?></td>
                     <td><?= htmlspecialchars($doc['category_id']) ?></td>
                     <td><?= htmlspecialchars($doc['created_at']) ?></td>
