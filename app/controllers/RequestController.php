@@ -22,8 +22,6 @@ class RequestsController
         }
     }
 
-    
-
     public function index()
     {
         $userId = $_SESSION['user_id'];
@@ -77,5 +75,23 @@ class RequestsController
 
         header('Location: index.php?controller=requests&action=index');
         exit;
+    }
+
+    public function requestNextStep()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_id'], $_POST['required_document'])) {
+            $pdo = getDbConnection();
+            require_once __DIR__ . '/../models/RequestStep.php';
+            $stepModel = new RequestStep($pdo);
+            $requestId = (int)$_POST['request_id'];
+            $requiredDocument = trim($_POST['required_document']);
+            $stepOrder = (int)($_POST['step_order'] ?? 1);
+            $stepModel->create($requestId, $stepOrder, $requiredDocument);
+            // Set status to 'waiting_user'
+            $pdo->prepare("UPDATE request_steps SET status = 'waiting_user' WHERE request_id = ? AND step_order = ?")
+                ->execute([$requestId, $stepOrder]);
+            header('Location: index.php?controller=requests&action=index');
+            exit;
+        }
     }
 }

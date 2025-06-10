@@ -115,7 +115,18 @@ class DocumentController
 
         render('documents/my_documents', ['documents' => $documents]);
     }
-
+    public function pendingRequests()
+    {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: index.php?controller=auth&action=loginForm');
+            exit;
+        }
+        $pdo = getDbConnection();
+        require_once __DIR__ . '/../models/RequestStep.php';
+        $stepModel = new RequestStep($pdo);
+        $pendingSteps = $stepModel->getPendingStepsForUser($_SESSION['user_id']);
+        render('documents/pending_requests', ['pendingSteps' => $pendingSteps]);
+    }
     public function status($id = null)
     {
         // Защита: само за влезли потребители

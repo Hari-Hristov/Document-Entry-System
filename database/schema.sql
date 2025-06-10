@@ -47,3 +47,14 @@ CREATE TABLE document_requests (
     FOREIGN KEY (uploaded_by_user_id) REFERENCES users(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE request_steps (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    request_id INT UNSIGNED NOT NULL,
+    step_order INT NOT NULL,
+    required_document VARCHAR(255) NOT NULL,
+    status ENUM('pending', 'waiting_user', 'waiting_responsible', 'approved', 'rejected') DEFAULT 'pending',
+    uploaded_file VARCHAR(255) DEFAULT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (request_id) REFERENCES document_requests(id)
+);

@@ -100,7 +100,7 @@ class DocumentService
                 'message' => 'Заявката е изпратена за одобрение от отговорника.',
                 'accessCode' => 'Ще бъде генериран при одобрение',
                 'fileName' => $fileName,
-                'incomingNumber' => $access_code
+                'incomingNumber' => $$entryNumber
             ];
         }
     }
