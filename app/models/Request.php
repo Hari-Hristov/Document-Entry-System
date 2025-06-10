@@ -52,15 +52,17 @@ class Request
 
     // Вмъкваме в таблицата с документи (без uploaded_by_user_id)
     $stmt = $this->db->prepare("
-        INSERT INTO documents (filename, category_id, access_code, created_at, status)
-        VALUES (?, ?, ?, NOW(), 'new')
+        INSERT INTO documents (user_id, filename, category_id, access_code, created_at, status)
+        VALUES (?, ?, ?, ?, NOW(), 'new')
     ");
 
     $result = $stmt->execute([
+        $request['uploaded_by_user_id'], // user_id
         $request['filename'],
         $request['category_id'],
         $accessCode
     ]);
+
 
     if (!$result) {
         return false;

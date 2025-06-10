@@ -28,13 +28,13 @@ class AuthService
     }
 
    public function register(string $username, string $password, string $role = 'user', string $fullName = ''): ?int
-{
-    $result = $this->userModel->create($username, $password, $role, $fullName);
-    if ($result) {
-        return (int)$this->userModel->getLastInsertId();
+    {
+        $result = $this->userModel->create($username, $password, $role, $fullName);
+        if ($result) {
+            return (int)$this->userModel->getLastInsertId();
+        }
+        return null;
     }
-    return null;
-}
 
     public static function isAuthenticated(): bool
     {
