@@ -26,5 +26,3 @@ Document-Entry-System is a web application for uploading, tracking, and managing
 - `app/` – Application code (MVC: controllers, models, views, services, config, helpers)
 - `database/` – SQL schema and seed data
 - `public/` – Public web root (entry point, assets, uploads)
-- `.env` – (Not used) Example environment variables
-- `README.md`, `LICENSE` – Documentation and license
