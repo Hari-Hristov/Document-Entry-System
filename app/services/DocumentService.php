@@ -127,7 +127,7 @@ class DocumentService
     {
         $pdo = getDbConnection();
         $stmt = $pdo->prepare("
-            INSERT INTO access_logs (document_id, user_id, action, accessed_at)_
+            INSERT INTO access_logs (document_id, user_id, action, accessed_at)
             VALUES (:document_id, :user_id, :action, NOW())
         ");
         $stmt->execute([
