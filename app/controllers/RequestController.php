@@ -25,18 +25,18 @@ class RequestsController
     
 
     public function index()
-{
-    $userId = $_SESSION['user_id'];
-    $requests = $this->requestModel->getRequestsByResponsibleUser($userId);
+    {
+        $userId = $_SESSION['user_id'];
+        $requests = $this->requestModel->getRequestsByResponsibleUser($userId);
 
-    // Стартирам буферизация на изхода
-    ob_start();
-    require __DIR__ . '/../views/requests/requestView.php';
-    $content = ob_get_clean();
+        // Стартирам буферизация на изхода
+        ob_start();
+        require __DIR__ . '/../views/requests/requestView.php';
+        $content = ob_get_clean();
 
-    $title = "Панел Заявки";
-    require __DIR__ . '/../views/layouts/main.php';  // Твойят файл с навигация, футър и др.
-}
+        $title = "Панел Заявки";
+        require __DIR__ . '/../views/layouts/main.php';  // Твойят файл с навигация, футър и др.
+    }
 
 
     public function accept()
