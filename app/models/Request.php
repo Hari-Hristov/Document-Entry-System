@@ -47,21 +47,21 @@ class Request
         return false;
     }
 
-    // Генерираме код за достъп
-    $accessCode = bin2hex(random_bytes(8));
+// Използваме оригиналния access_code от заявката
+$accessCode = $request['access_code'];
 
-    // Вмъкваме в таблицата с документи
-    $stmt = $this->db->prepare("
-        INSERT INTO documents (user_id, filename, category_id, access_code, created_at, status)
-        VALUES (?, ?, ?, ?, NOW(), 'new')
-    ");
+// Вмъкваме в таблицата с документи
+$stmt = $this->db->prepare("
+    INSERT INTO documents (user_id, filename, category_id, access_code, created_at, status)
+    VALUES (?, ?, ?, ?, NOW(), 'new')
+");
 
-    $result = $stmt->execute([
-        $request['uploaded_by_user_id'], // user_id
-        $request['filename'],
-        $request['category_id'],
-        $accessCode
-    ]);
+$result = $stmt->execute([
+    $request['uploaded_by_user_id'], // user_id
+    $request['filename'],
+    $request['category_id'],
+    $accessCode
+]);
 
 
     if (!$result) {
@@ -104,7 +104,11 @@ class Request
            unlink($fullPath);
         }
 
-        // Изтрий заявката от базата
+        // Първо изтрий всички стъпки, свързани със заявката
+        $stmt = $this->db->prepare("DELETE FROM request_steps WHERE request_id = ?");
+        $stmt->execute([$requestId]);
+
+        // След това изтрий заявката от базата
         $stmt = $this->db->prepare("DELETE FROM document_requests WHERE id = ?");
         $stmt->execute([$requestId]);
 

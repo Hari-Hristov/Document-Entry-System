@@ -13,18 +13,15 @@ class DocumentController
 
     public function uploadForm()
     {
-        // Защита: само за влезли потребители
         if (!isset($_SESSION['username'])) {
             header('Location: index.php?controller=auth&action=loginForm');
             exit;
         }
-
         render('documents/upload', []);
     }
 
     public function upload()
     {
-        // Защита: само за влезли потребители
         if (!isset($_SESSION['username'])) {
             header('Location: index.php?controller=auth&action=loginForm');
             exit;
@@ -33,8 +30,9 @@ class DocumentController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $file = $_FILES['document'] ?? null;
             $categoryId = $_POST['category_id'] ?? null;
+            $documentType = $_POST['document_type'] ?? null;
 
-            $result = $this->documentService->uploadDocument($file, $categoryId);
+            $result = $this->documentService->uploadDocument($file, $categoryId, $documentType);
 
             if ($result['success']) {
                 render('documents/upload', [
@@ -53,7 +51,40 @@ class DocumentController
         }
     }
 
-    public function search()
+    public function pendingRequests()
+    {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: index.php?controller=auth&action=loginForm');
+            exit;
+        }
+        $pdo = getDbConnection();
+        require_once __DIR__ . '/../models/RequestStep.php';
+        $stepModel = new RequestStep($pdo);
+        $pendingSteps = $stepModel->getPendingStepsForUser($_SESSION['user_id']);
+        render('documents/pending_requests', ['pendingSteps' => $pendingSteps]);
+    }
+
+    public function uploadStepDocument()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['step_id']) && isset($_FILES['document'])) {
+            $stepId = (int)$_POST['step_id'];
+            $file = $_FILES['document'];
+            $uploadDir = __DIR__ . '/../../public/uploads/';
+            $fileName = uniqid('step_') . '_' . basename($file['name']);
+            $filePath = $uploadDir . $fileName;
+            move_uploaded_file($file['tmp_name'], $filePath);
+
+            require_once __DIR__ . '/../models/RequestStep.php';
+            $pdo = getDbConnection();
+            $stepModel = new RequestStep($pdo);
+            $stepModel->updateStepFile($stepId, $fileName);
+
+            header('Location: index.php?controller=document&action=pendingRequests');
+            exit;
+        }
+    }
+
+     public function search()
     {
         // Защита: само за влезли потребители
         if (!isset($_SESSION['username'])) {
@@ -114,38 +145,5 @@ class DocumentController
         $documents = $this->documentService->getDocumentsByUser($userId);
 
         render('documents/my_documents', ['documents' => $documents]);
-    }
-    public function pendingRequests()
-    {
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: index.php?controller=auth&action=loginForm');
-            exit;
-        }
-        $pdo = getDbConnection();
-        require_once __DIR__ . '/../models/RequestStep.php';
-        $stepModel = new RequestStep($pdo);
-        $pendingSteps = $stepModel->getPendingStepsForUser($_SESSION['user_id']);
-        render('documents/pending_requests', ['pendingSteps' => $pendingSteps]);
-    }
-    public function status($id = null)
-    {
-        // Защита: само за влезли потребители
-        if (!isset($_SESSION['username'])) {
-            header('Location: index.php?controller=auth&action=loginForm');
-            exit;
-        }
-
-        if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['access_code'])) {
-            $accessCode = $_GET['access_code'];
-            $document = $this->documentService->getDocumentStatus($accessCode);
-
-            if ($document) {
-                render('documents/status', ['document' => $document]);
-            } else {
-                render('documents/status', ['error' => 'Документът не е намерен.']);
-            }
-        } else {
-            render('documents/status');
-        }
     }
 }

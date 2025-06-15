@@ -29,4 +29,13 @@ $routes = [
         'reject' => 'ResponsibleController@reject',
     ],
 
+    'requests' => [
+        'index' => 'RequestsController@index',
+        'accept' => 'RequestsController@accept',
+        'reject' => 'RequestsController@reject',
+        'requestNextStep' => 'RequestsController@requestNextStep',
+        'approveStep' => 'RequestsController@approveStep',
+        'rejectStep' => 'RequestsController@rejectStep',
+    ],
+
 ];

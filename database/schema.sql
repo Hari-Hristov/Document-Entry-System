@@ -40,6 +40,8 @@ CREATE TABLE document_requests (
     filename VARCHAR(255) NOT NULL,
     category_id INT UNSIGNED NOT NULL,
     uploaded_by_user_id INT UNSIGNED NOT NULL,
+    document_type VARCHAR(255) DEFAULT NULL,
+    access_code VARCHAR(32) NOT NULL,
     uploaded_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
     PRIMARY KEY (id),
@@ -58,3 +60,16 @@ CREATE TABLE request_steps (
     updated_at DATETIME DEFAULT NULL,
     FOREIGN KEY (request_id) REFERENCES document_requests(id)
 );
+
+CREATE TABLE required_documents (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    category_id INT UNSIGNED NOT NULL,
+    document_type VARCHAR(255) NOT NULL,
+    required_document VARCHAR(255) NOT NULL,
+    FOREIGN KEY (category_id) REFERENCES categories(id)
+);
+
+ALTER TABLE documents ADD COLUMN document_type VARCHAR(255) DEFAULT NULL;
+
+--ALTER TABLE document_requests ADD COLUMN document_type VARCHAR(255) DEFAULT NULL;
+--ALTER TABLE document_requests ADD COLUMN access_code VARCHAR(32) NOT NULL;
