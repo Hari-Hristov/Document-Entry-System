@@ -17,3 +17,6 @@ VALUES ('teacher', '$2y$10$KP.v8Hv2xAk97tCbC1r1lO4jr3qRwMMZKmFOwu/R6VwaA3b.007cW
 -- Вмъкване на администратор (role: admin)
 INSERT INTO users (username, password, full_name, role)
 VALUES ('admin', '$2y$10$GQsUsWLUZjD4AIVKV/FZhegeq1jQLNhkQxUSASdZHBDBAX2shQLTW', 'Администратор', 'admin');
+
+INSERT INTO required_documents (category_id, document_type, required_document)
+VALUES (2, 'Заявление за магистратура', 'Диплома за завършено висше образование');
