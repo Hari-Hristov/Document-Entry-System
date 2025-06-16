@@ -71,4 +71,5 @@ class ResponsibleController
         $this->service->rejectDocument((int)$documentId);
         header('Location: index.php?controller=responsible&action=dashboard');
     }
+
 }

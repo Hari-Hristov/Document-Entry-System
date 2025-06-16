@@ -20,3 +20,6 @@ VALUES ('admin', '$2y$10$GQsUsWLUZjD4AIVKV/FZhegeq1jQLNhkQxUSASdZHBDBAX2shQLTW',
 
 INSERT INTO required_documents (category_id, document_type, required_document)
 VALUES (2, 'Заявление за магистратура', 'Диплома за завършено висше образование');
+
+INSERT INTO required_documents (category_id, document_type, required_document)
+VALUES (3, 'Заявление за записване за специалност', 'Диплома за завършено средно образование');
