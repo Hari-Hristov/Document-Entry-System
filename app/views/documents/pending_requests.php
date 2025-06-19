@@ -14,7 +14,7 @@
             <?php foreach ($pendingSteps as $step): ?>
                 <tr>
                     <td><?= htmlspecialchars($step['required_document']) ?></td>
-                    <td><?= htmlspecialchars($step['category_id']) ?></td>
+                    <td><?= htmlspecialchars($step['category_name']) ?></td>
                     <td>
                         <form method="POST" enctype="multipart/form-data" action="index.php?controller=document&action=uploadStepDocument">
                             <input type="hidden" name="step_id" value="<?= $step['id'] ?>">

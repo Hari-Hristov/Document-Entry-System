@@ -1,21 +1,17 @@
 <?php
-// app/services/DocumentService.php
-
-require_once __DIR__ . '/../config/config.php';  // за getDbConnection()
+require_once __DIR__ . '/../config/config.php';
 
 class DocumentService
 {
-
     /**
-     * Качва документ и го добавя в базата данни.
-     * Ако потребителят е отговорник на категорията, документът се качва директно.
-     * Ако не е отговорник, се създава заявка за одобрение.
+     * Качва документ и го добавя в базата данни или създава заявка.
      *
-     * @param array|null $file - информация за качения файл
-     * @param int|null $categoryId - ID на категорията
-     * @return array - резултат от операцията
+     * @param array|null $file
+     * @param int|null $categoryId
+     * @param string|null $documentType
+     * @return array
      */
-    public function uploadDocument(?array $file, ?int $categoryId): array
+    public function uploadDocument(?array $file, ?int $categoryId, ?string $documentType): array
     {
         if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
             return [
@@ -61,20 +57,18 @@ class DocumentService
 
         if (!$responsibleUserId || $responsibleUserId == $userId) {
             $stmt = $pdo->prepare("
-        INSERT INTO documents (user_id, filename, category_id, access_code, created_at)
-        VALUES (:user_id, :filename, :category_id, :access_code, NOW())
-    ");
-
+                INSERT INTO documents (user_id, filename, category_id, access_code, created_at, document_type)
+                VALUES (:user_id, :filename, :category_id, :access_code, NOW(), :document_type)
+            ");
             $stmt->execute([
                 ':user_id' => $userId,
                 ':filename' => $fileName,
                 ':category_id' => $categoryId,
-                ':access_code' => $accessCode
+                ':access_code' => $accessCode,
+                ':document_type' => $documentType
             ]);
-
             $documentId = $pdo->lastInsertId();
             $this->logAction($userId, $documentId, 'upload');
-
             return [
                 'success' => true,
                 'message' => 'Документът е качен.',
@@ -85,41 +79,32 @@ class DocumentService
             ];
         } else {
             $stmt = $pdo->prepare("
-            INSERT INTO document_requests (filename, category_id, uploaded_by_user_id, uploaded_at)
-            VALUES (:filename, :category_id, :user_id, NOW())
-        ");
-
+                INSERT INTO document_requests (filename, category_id, uploaded_by_user_id, uploaded_at, document_type, access_code)
+                VALUES (:filename, :category_id, :user_id, NOW(), :document_type, :access_code)
+            ");
             $stmt->execute([
                 ':filename' => $fileName,
                 ':category_id' => $categoryId,
-                ':user_id' => $userId
+                ':user_id' => $userId,
+                ':document_type' => $documentType,
+                ':access_code' => $accessCode
             ]);
-
             return [
                 'success' => true,
                 'message' => 'Заявката е изпратена за одобрение от отговорника.',
-                'accessCode' => 'Ще бъде генериран при одобрение',
+                'accessCode' => $accessCode,
                 'fileName' => $fileName,
-                'incomingNumber' => $$entryNumber
+                'incomingNumber' => $accessCode
             ];
         }
     }
 
-    /**
-    * Намира документ по входящ номер (incomingNumber = access_code).
-     *
-     * @param string $incomingNumber - входящ номер (access_code)
-     * @return array|null - информация за документа или null, ако не е намерен
-     */
     public function findByIncomingNumber(string $incomingNumber): ?array
     {
         $pdo = getDbConnection();
-    
         $stmt = $pdo->prepare("SELECT * FROM documents WHERE access_code = :incomingNumber LIMIT 1");
         $stmt->execute([':incomingNumber' => $incomingNumber]);
-    
         $document = $stmt->fetch(PDO::FETCH_ASSOC);
-    
         return $document ?: null;
     }
 
@@ -137,24 +122,16 @@ class DocumentService
         ]);
     }
 
-    /**
-     * Връща всички документи, качени от потребител с даден ID.
-     * Включва документи, които са качени директно от потребителя или чрез одобрена заявка.
-     *
-     * @param int $userId - ID на потребителя
-     * @return array - списък с документи
-     */
     public function getDocumentsByUser(int $userId): array
     {
         $pdo = getDbConnection();
         $stmt = $pdo->prepare("
-        SELECT *
-        FROM documents
-        WHERE user_id = :user_id
-        ORDER BY created_at DESC
-    ");
+            SELECT *
+            FROM documents
+            WHERE user_id = :user_id
+            ORDER BY created_at DESC
+        ");
         $stmt->execute([':user_id' => $userId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
 }

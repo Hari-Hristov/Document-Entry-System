@@ -22,7 +22,16 @@ class ResponsibleController
         $userId = $_SESSION['user_id'];
         $pendingDocuments = $this->service->getPendingDocumentsForUser($userId);
 
-        render('responsible/dashboard', ['documents' => $pendingDocuments]);
+        // Fetch steps waiting for responsible review
+        require_once __DIR__ . '/../models/RequestStep.php';
+        $pdo = getDbConnection();
+        $stepModel = new RequestStep($pdo);
+        $pendingSteps = $stepModel->getStepsForResponsible($userId);
+
+        render('responsible/dashboard', [
+            'documents' => $pendingDocuments,
+            'steps' => $pendingSteps
+        ]);
     }
 
     public function accept()
@@ -62,4 +71,5 @@ class ResponsibleController
         $this->service->rejectDocument((int)$documentId);
         header('Location: index.php?controller=responsible&action=dashboard');
     }
+
 }

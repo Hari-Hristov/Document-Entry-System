@@ -10,9 +10,10 @@
         // Dummy required documents for each category
         const requiredDocs = {
             "1": ["Справка за успех", "Банково становище"],
-            "2": ["Диплома за бакалавър", "Заявление за магистратура"],
-            "3": ["Заявление за кандидатстване", "Копие от диплома"],
+            "2": ["Заявление за магистратура", "Други документи"],
+            "3": ["Заявление за записване за специалност", "Други документи"],
             "4": ["Заявление за поправка", "Платежно за такса"]
+            // "5" (Без категория) intentionally omitted
         };
 
         function updateRequiredDocs() {
@@ -32,8 +33,10 @@
                     docTypeSelect.appendChild(opt);
                 });
                 docTypeContainer.classList.remove('hidden');
+                docTypeSelect.required = true;
             } else {
                 docTypeContainer.classList.add('hidden');
+                docTypeSelect.required = false;
             }
         }
 
@@ -57,12 +60,12 @@
             <section class="alert alert-danger"><?= htmlspecialchars($error) ?></section>
         <?php endif; ?>
 
-        <?php if (!empty($success) && !empty($entry_number)): ?>
+        <?php if (!empty($success) && !empty($access_code)): ?>
             <section class="alert alert-success">
                 <?= htmlspecialchars($message ?? 'Документът е качен успешно!') ?><br>
-                <strong>Входящ номер: <?= htmlspecialchars($entry_number) ?></strong>
+                <strong>Входящ номер: <?= htmlspecialchars($access_code) ?></strong>
                 <button class="btn btn-sm btn-outline-secondary mt-2 copy-btn"
-                    data-entry="<?= htmlspecialchars($entry_number) ?>">Копирай</button>
+                    data-entry="<?= htmlspecialchars($access_code) ?>">Копирай</button>
             </section>
         <?php endif; ?>
 
@@ -75,12 +78,13 @@
                     <option value="2">Учебен отдел – Магистри</option>
                     <option value="3">Кандидат-студенти</option>
                     <option value="4">Сесия</option>
+                    <option value="5">Без категория</option>
                 </select>
             </section>
 
             <section class="mb-3 hidden" id="required-doc-container">
                 <label for="required_document" class="form-label">Избери вид документ</label>
-                <select id="required_document" name="required_document" class="form-select">
+                <select id="required_document" name="document_type" class="form-select">
                     <!-- Options will be populated dynamically -->
                 </select>
             </section>
@@ -98,7 +102,16 @@
         // Copy to clipboard functionality for the entry number
         document.querySelectorAll('.copy-btn').forEach(btn => {
             btn.addEventListener('click', function () {
-                navigator.clipboard.writeText(this.getAttribute('data-entry'));
+                navigator.clipboard.writeText(this.getAttribute('data-entry')).then(() => {
+                    this.textContent = 'Копирано';
+                    this.classList.remove('btn-outline-secondary');
+                    this.classList.add('btn-success');
+                    setTimeout(() => {
+                        this.textContent = 'Копирай';
+                        this.classList.remove('btn-success');
+                        this.classList.add('btn-outline-secondary');
+                    }, 2000);
+                });
             });
         });
     </script>
