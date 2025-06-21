@@ -11,7 +11,7 @@ require_once __DIR__ . '/../app/controllers/CategoryController.php';
 require_once __DIR__ . '/../app/controllers/AuthController.php';
 require_once __DIR__ . '/../app/controllers/AdminController.php';
 require_once __DIR__ . '/../app/controllers/ResponsibleController.php';
-require_once __DIR__ . '/../app/controllers/RequestController.php';
+require_once __DIR__ . '/../app/controllers/RequestsController.php';
 
 $controllerName = $_GET['controller'] ?? 'auth';
 $action = $_GET['action'] ?? 'loginForm';

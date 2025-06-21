@@ -9,10 +9,20 @@ class RequestStep
         $this->db = $pdo;
     }
 
+    // Add department_category_id to support department-to-department routing
     public function create($requestId, $stepOrder, $requiredDocument)
     {
-        $stmt = $this->db->prepare("INSERT INTO request_steps (request_id, step_order, required_document) VALUES (?, ?, ?)");
-        $stmt->execute([$requestId, $stepOrder, $requiredDocument]);
+        // Determine department_category_id for special routing
+        $stmt = $this->db->prepare("SELECT category_id, document_type FROM document_requests WHERE id = ?");
+        $stmt->execute([$requestId]);
+        $request = $stmt->fetch(PDO::FETCH_ASSOC);
+        $departmentCategoryId = $request['category_id'];
+        // If this is 'Заявление за студентски права' requested from 'Сесия', route to 'Отдел Студенти' (category_id = 1)
+        if ($request['document_type'] === 'Заявление за поправка' && $requiredDocument === 'Заявление за студентски права') {
+            $departmentCategoryId = 1; // Отдел Студенти
+        }
+        $stmt = $this->db->prepare("INSERT INTO request_steps (request_id, step_order, required_document, department_category_id) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$requestId, $stepOrder, $requiredDocument, $departmentCategoryId]);
     }
 
     public function getPendingStepsForUser($userId)
@@ -42,13 +52,15 @@ class RequestStep
 
     public function getStepsForResponsible($userId)
     {
+        // Only show steps for the responsible's department
         $stmt = $this->db->prepare("
             SELECT rs.*, dr.category_id, c.name AS category_name, dr.uploaded_by_user_id, u.username, dr.filename AS initial_filename
             FROM request_steps rs
             JOIN document_requests dr ON rs.request_id = dr.id
             JOIN categories c ON dr.category_id = c.id
             JOIN users u ON dr.uploaded_by_user_id = u.id
-            WHERE c.responsible_user_id = ? AND rs.status = 'waiting_responsible'
+            JOIN categories rc ON rs.department_category_id = rc.id
+            WHERE rc.responsible_user_id = ? AND rs.status = 'waiting_responsible'
         ");
         $stmt->execute([$userId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -58,7 +70,7 @@ class RequestStep
     {
         // Get step and related request
         $stmt = $this->db->prepare("
-            SELECT rs.*, dr.filename AS initial_filename, dr.uploaded_by_user_id, dr.category_id, dr.id AS request_id, dr.access_code
+            SELECT rs.*, dr.filename AS initial_filename, dr.uploaded_by_user_id, dr.category_id, dr.id AS request_id, dr.access_code, dr.document_type
             FROM request_steps rs
             JOIN document_requests dr ON rs.request_id = dr.id
             WHERE rs.id = ?
@@ -67,6 +79,19 @@ class RequestStep
         $step = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$step) return false;
+
+        // Special case: if this is 'Заявление за студентски права' step, after approval, create payment step for 'Сесия'
+        if ($step['required_document'] === 'Заявление за студентски права' && $step['document_type'] === 'Заявление за поправка') {
+            // Mark this step as approved
+            $this->db->prepare("UPDATE request_steps SET status = 'approved', updated_at = NOW() WHERE id = ?")
+                ->execute([$stepId]);
+            // Create payment step for 'Сесия' (category_id = 4)
+            $nextOrder = $step['step_order'] + 1;
+            $this->create($step['request_id'], $nextOrder, 'Платежно за такса');
+            $this->db->prepare("UPDATE request_steps SET status = 'waiting_user' WHERE request_id = ? AND step_order = ?")
+                ->execute([$step['request_id'], $nextOrder]);
+            return true;
+        }
 
         // 1. Move the answer file to documents with a NEW access_code
         $newAccessCode = bin2hex(random_bytes(8));
@@ -109,16 +134,16 @@ class RequestStep
             $initialDocId = $existingDocId;
         }
 
-        // 3. Delete the step
         $stmt = $this->db->prepare("DELETE FROM request_steps WHERE id = ?");
         $stmt->execute([$stepId]);
-        // Log: step deleted
+        
         $this->logAction($step['uploaded_by_user_id'], $answerDocId, 'request_step_deleted');
-
-        // 4. Delete the document_request
+        
+        $this->db->prepare("DELETE FROM request_steps WHERE request_id = ?")->execute([$step['request_id']]);
+        
         $stmt = $this->db->prepare("DELETE FROM document_requests WHERE id = ?");
         $stmt->execute([$step['request_id']]);
-        // Log: request deleted
+        
         $this->logAction($step['uploaded_by_user_id'], $initialDocId, 'document_request_deleted');
 
         return true;
