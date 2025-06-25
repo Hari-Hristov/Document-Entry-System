@@ -42,6 +42,12 @@
                                     <option value="" disabled selected>Избери документ</option>
                                     <?php
                                     $docs = $requiredDocsByRequest[$request['id']] ?? [];
+                                    // If this is 'Сесия' and 'Заявление за поправка', add 'Заявление за студентски права' to dropdown
+                                    if ($request['category_name'] === 'Сесия' && $request['document_type'] === 'Заявление за поправка') {
+                                        if (!in_array('Заявление за студентски права', $docs)) {
+                                            $docs[] = 'Заявление за студентски права';
+                                        }
+                                    }
                                     foreach ($docs as $doc) {
                                         echo '<option value="' . htmlspecialchars($doc) . '">' . htmlspecialchars($doc) . '</option>';
                                     }

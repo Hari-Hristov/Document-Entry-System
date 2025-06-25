@@ -40,7 +40,7 @@ class RequestsController
         // Fetch the latest pending step for each request
         $pendingStepsByRequestId = [];
         foreach ($requests as $request) {
-            $stmt = $this->pdo->prepare("SELECT * FROM request_steps WHERE request_id = ? AND status IN ('waiting_user', 'waiting_responsible') ORDER BY id DESC LIMIT 1");
+            $stmt = $this->pdo->prepare("SELECT * FROM request_steps WHERE request_id = ? AND status IN ('waiting_user', 'waiting_responsible', 'student_check') ORDER BY id DESC LIMIT 1");
             $stmt->execute([$request['id']]);
             $pendingStep = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($pendingStep) {
@@ -97,9 +97,20 @@ class RequestsController
             $requestId = (int)$_POST['request_id'];
             $requiredDocument = trim($_POST['required_document']);
             $stepOrder = (int)($_POST['step_order'] ?? 1);
-            $stepModel->create($requestId, $stepOrder, $requiredDocument);
-            $pdo->prepare("UPDATE request_steps SET status = 'waiting_user' WHERE request_id = ? AND step_order = ?")
-                ->execute([$requestId, $stepOrder]);
+            // Special routing for 'Заявление за студентски права' from 'Сесия'
+            $stmt = $pdo->prepare("SELECT category_id, document_type FROM document_requests WHERE id = ?");
+            $stmt->execute([$requestId]);
+            $request = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($request['document_type'] === 'Заявление за поправка' && $requiredDocument === 'Заявление за студентски права') {
+                // Route to Отдел Студенти (category_id = 1)
+                $stepModel->create($requestId, $stepOrder, $requiredDocument);
+                $pdo->prepare("UPDATE request_steps SET status = 'waiting_responsible' WHERE request_id = ? AND step_order = ?")
+                    ->execute([$requestId, $stepOrder]);
+            } else {
+                $stepModel->create($requestId, $stepOrder, $requiredDocument);
+                $pdo->prepare("UPDATE request_steps SET status = 'waiting_user' WHERE request_id = ? AND step_order = ?")
+                    ->execute([$requestId, $stepOrder]);
+            }
             header('Location: index.php?controller=requests&action=index');
             exit;
         }
@@ -133,5 +144,39 @@ class RequestsController
 
         header('Location: index.php?controller=requests&action=index');
         exit;
+    }
+
+    public function triggerStudentCheck()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_id'], $_POST['step_order'])) {
+            require_once __DIR__ . '/../models/RequestStep.php';
+            $stepModel = new RequestStep($this->pdo);
+            $requestId = (int)$_POST['request_id'];
+            $stepOrder = (int)$_POST['step_order'];
+            $stepModel->createStudentCheckStep($requestId, $stepOrder);
+            header('Location: index.php?controller=requests&action=index');
+            exit;
+        }
+    }
+
+    public function setStudentCheckResult()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['step_id'], $_POST['result'])) {
+            require_once __DIR__ . '/../models/RequestStep.php';
+            $stepModel = new RequestStep($this->pdo);
+            $stepId = (int)$_POST['step_id'];
+            $result = $_POST['result']; // 'positive' or 'negative'
+            $stepModel->setStudentCheckResult($stepId, $result);
+            // If positive, create next step for 'платежно'
+            if ($result === 'positive' && isset($_POST['request_id'], $_POST['next_step_order'])) {
+                $requestId = (int)$_POST['request_id'];
+                $nextStepOrder = (int)$_POST['next_step_order'];
+                $stepModel->create($requestId, $nextStepOrder, 'Платежно', 'document');
+                $this->pdo->prepare("UPDATE request_steps SET status = 'waiting_user' WHERE request_id = ? AND step_order = ?")
+                    ->execute([$requestId, $nextStepOrder]);
+            }
+            header('Location: index.php?controller=requests&action=index');
+            exit;
+        }
     }
 }

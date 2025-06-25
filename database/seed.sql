@@ -23,3 +23,11 @@ VALUES (2, 'Заявление за магистратура', 'Диплома �
 
 INSERT INTO required_documents (category_id, document_type, required_document)
 VALUES (3, 'Заявление за записване за специалност', 'Диплома за завършено средно образование');
+
+-- Add 'Заявление за студентски права' as a required document for 'Сесия' (category_id = 4)
+INSERT INTO required_documents (category_id, document_type, required_document)
+VALUES (4, 'Заявление за поправка', 'Заявление за студентски права');
+
+-- Add 'Платежно за такса' as a required document for 'Сесия' (if not already present)
+INSERT IGNORE INTO required_documents (category_id, document_type, required_document)
+VALUES (4, 'Заявление за поправка', 'Платежно за такса');

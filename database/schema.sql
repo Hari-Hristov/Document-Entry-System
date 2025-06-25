@@ -13,6 +13,7 @@ CREATE TABLE documents (
     category_id INT DEFAULT 0,
     access_code VARCHAR(32) NOT NULL UNIQUE,
     created_at DATETIME NOT NULL,
+    document_type VARCHAR(255) DEFAULT NULL,
     status ENUM('new', 'in_review', 'archived', 'paused') DEFAULT 'new',
     PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES users(id)
@@ -56,9 +57,11 @@ CREATE TABLE request_steps (
     required_document VARCHAR(255) NOT NULL,
     status ENUM('pending', 'waiting_user', 'waiting_responsible', 'approved', 'rejected') DEFAULT 'pending',
     uploaded_file VARCHAR(255) DEFAULT NULL,
+    department_category_id INT UNSIGNED DEFAULT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT NULL,
-    FOREIGN KEY (request_id) REFERENCES document_requests(id)
+    FOREIGN KEY (request_id) REFERENCES document_requests(id),
+    FOREIGN KEY (department_category_id) REFERENCES categories(id)
 );
 
 CREATE TABLE required_documents (
@@ -68,8 +71,3 @@ CREATE TABLE required_documents (
     required_document VARCHAR(255) NOT NULL,
     FOREIGN KEY (category_id) REFERENCES categories(id)
 );
-
-ALTER TABLE documents ADD COLUMN document_type VARCHAR(255) DEFAULT NULL;
-
---ALTER TABLE document_requests ADD COLUMN document_type VARCHAR(255) DEFAULT NULL;
---ALTER TABLE document_requests ADD COLUMN access_code VARCHAR(32) NOT NULL;
