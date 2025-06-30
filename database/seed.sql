@@ -31,3 +31,7 @@ VALUES (4, 'Заявление за поправка', 'Заявление за 
 -- Add 'Платежно за такса' as a required document for 'Сесия' (if not already present)
 INSERT IGNORE INTO required_documents (category_id, document_type, required_document)
 VALUES (4, 'Заявление за поправка', 'Платежно за такса');
+
+-- Add 'Банково станочище' as a required document for 'Отдел Студенти' (category_id = 1)
+INSERT INTO required_documents (category_id, document_type, required_document)
+VALUES (1, 'Заявление за стипендия', 'Банково становище');
