@@ -6,6 +6,7 @@
             <th>Потребител</th>
             <th>Действие</th>
             <th>Входен номер на документ</th>
+            <th>Код за достъп</th>
             <th>Дата и час</th>
         </tr>
     </thead>
@@ -14,6 +15,7 @@
             <tr>
                 <td><?= htmlspecialchars($log['username'] ?? 'Анонимен') ?></td>
                 <td><?= htmlspecialchars($log['action']) ?></td>
+                <td><?= htmlspecialchars($log['entry_number'] ?? '-') ?></td>
                 <td><?= htmlspecialchars($log['access_code'] ?? '-') ?></td>
                 <td><?= htmlspecialchars($log['accessed_at']) ?></td>
             </tr>

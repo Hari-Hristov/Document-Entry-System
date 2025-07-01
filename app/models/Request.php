@@ -53,7 +53,7 @@ $accessCode = $request['access_code'];
 // Вмъкваме в таблицата с документи
 $stmt = $this->db->prepare("
     INSERT INTO documents (user_id, filename, category_id, access_code, created_at, status)
-    VALUES (?, ?, ?, ?, NOW(), 'new')
+    VALUES (?, ?, ?, ?, NOW(), 'approved')
 ");
 
 $result = $stmt->execute([
@@ -97,20 +97,24 @@ $result = $stmt->execute([
             return false;
         }
 
+        // Изтриване на файла от диска, ако съществува
         $uploadDir = __DIR__ . '/../../public/uploads/';
         $fullPath = realpath($uploadDir . basename($request['filename']));
-
         if ($fullPath && file_exists($fullPath)) {
-           unlink($fullPath);
+            unlink($fullPath);
         }
 
-        // Първо изтрий всички стъпки, свързани със заявката
-        $stmt = $this->db->prepare("DELETE FROM request_steps WHERE request_id = ?");
+        // Изтриване на документа от таблицата с документи, ако съществува
+        $stmt = $this->db->prepare("DELETE FROM documents WHERE filename = ?");
+        $stmt->execute([$request['filename']]);
+
+        // Маркиране на заявката като отхвърлена (не я изтриваме)
+        $stmt = $this->db->prepare("UPDATE document_requests SET status = 'rejected' WHERE id = ?");
         $stmt->execute([$requestId]);
 
-        // След това изтрий заявката от базата
-        $stmt = $this->db->prepare("DELETE FROM document_requests WHERE id = ?");
-        $stmt->execute([$requestId]);
+        // По желание, можете също да изтриете request_steps, ако желаете:
+        // $stmt = $this->db->prepare("DELETE FROM request_steps WHERE request_id = ?");
+        // $stmt->execute([$requestId]);
 
         return true;
     }

@@ -99,15 +99,6 @@ class DocumentService
         }
     }
 
-    public function findByIncomingNumber(string $incomingNumber): ?array
-    {
-        $pdo = getDbConnection();
-        $stmt = $pdo->prepare("SELECT * FROM documents WHERE access_code = :incomingNumber LIMIT 1");
-        $stmt->execute([':incomingNumber' => $incomingNumber]);
-        $document = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $document ?: null;
-    }
-
     private function logAction(?int $userId, int $documentId, string $action): void
     {
         $pdo = getDbConnection();
@@ -134,4 +125,53 @@ class DocumentService
         $stmt->execute([':user_id' => $userId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function findByIncomingNumber(string $incomingNumber): ?array
+{
+    $pdo = getDbConnection();
+
+    // For documents (approved)
+    $stmt = $pdo->prepare("
+        SELECT d.*, c.name AS category_name, 'approved' as workflow_status
+        FROM documents d
+        LEFT JOIN categories c ON d.category_id = c.id
+        WHERE d.access_code = :incomingNumber
+        LIMIT 1
+    ");
+    $stmt->execute([':incomingNumber' => $incomingNumber]);
+    $document = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($document) {
+        return $document;
+    }
+
+    // For requests (pending, rejected, etc)
+    $stmt = $pdo->prepare("
+        SELECT dr.*, c.name AS category_name, dr.status as workflow_status
+        FROM document_requests dr
+        LEFT JOIN categories c ON dr.category_id = c.id
+        WHERE dr.access_code = :incomingNumber
+        LIMIT 1
+    ");
+    $stmt->execute([':incomingNumber' => $incomingNumber]);
+    $request = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($request) {
+        // Optionally, check for steps and add more info
+        $stmt2 = $pdo->prepare("SELECT * FROM request_steps WHERE request_id = ? ORDER BY id DESC LIMIT 1");
+        $stmt2->execute([$request['id']]);
+        $step = $stmt2->fetch(PDO::FETCH_ASSOC);
+        if ($step) {
+            $request['workflow_status'] = $step['status'];
+        } else {
+            // If no steps, use the main request status (pending, rejected, etc)
+            $request['workflow_status'] = $request['status'];
+        }
+        $request['filename'] = $request['filename'];
+        $request['category_id'] = $request['category_id'];
+        $request['status'] = $request['status'];
+        $request['is_request'] = true;
+        return $request;
+    }
+
+    return null;
+}
 }

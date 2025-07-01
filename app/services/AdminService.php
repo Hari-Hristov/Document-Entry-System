@@ -12,15 +12,19 @@ class AdminService
     }
 
     public function getAccessLogs(): array
-{
-    $stmt = $this->pdo->query("
-        SELECT al.*, u.username, d.access_code
-        FROM access_logs al
-        LEFT JOIN users u ON al.user_id = u.id
-        LEFT JOIN documents d ON al.document_id = d.id
-        ORDER BY al.accessed_at DESC
-    ");
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+    {
+        $stmt = $this->pdo->query("
+            SELECT 
+                al.*, 
+                u.username, 
+                COALESCE(d.access_code, dr.access_code) AS access_code
+            FROM access_logs al
+            LEFT JOIN users u ON al.user_id = u.id
+            LEFT JOIN documents d ON al.document_id = d.id
+            LEFT JOIN document_requests dr ON al.document_id = dr.id
+            ORDER BY al.accessed_at DESC
+        ");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
 }

@@ -17,12 +17,19 @@ class RequestStep
         $stmt->execute([$requestId]);
         $request = $stmt->fetch(PDO::FETCH_ASSOC);
         $departmentCategoryId = $request['category_id'];
+
+        // Default status for new step
+        $status = 'pending';
+
         // If this is 'Заявление за студентски права' requested from 'Сесия', route to 'Отдел Студенти' (category_id = 1)
+        // and keep status as 'pending'
         if ($request['document_type'] === 'Заявление за поправка' && $requiredDocument === 'Заявление за студентски права') {
             $departmentCategoryId = 1; // Отдел Студенти
+            $status = 'pending'; // Explicitly set to pending
         }
-        $stmt = $this->db->prepare("INSERT INTO request_steps (request_id, step_order, required_document, department_category_id) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$requestId, $stepOrder, $requiredDocument, $departmentCategoryId]);
+
+        $stmt = $this->db->prepare("INSERT INTO request_steps (request_id, step_order, required_document, department_category_id, status) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$requestId, $stepOrder, $requiredDocument, $departmentCategoryId, $status]);
     }
 
     public function getPendingStepsForUser($userId)
