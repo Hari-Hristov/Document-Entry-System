@@ -98,7 +98,7 @@ $result = $stmt->execute([
         }
 
         // Изтриване на файла от диска, ако съществува
-        $uploadDir = __DIR__ . '/../../uploads/';
+        $uploadDir = __DIR__ . '/../../public/uploads/';
         $fullPath = realpath($uploadDir . basename($request['filename']));
         if ($fullPath && file_exists($fullPath)) {
             unlink($fullPath);
