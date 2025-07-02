@@ -5,7 +5,7 @@ class QRService {
     public static function generate(string $incomingNumber, string $accessCode): string {
         $text = "http://localhost/document-entry-system/public/view.php?incoming=$incomingNumber&access_code=$accessCode";
         $fileName = "qr_" . $incomingNumber . ".png";
-        $outputPath = __DIR__ . "/../../public/uploads/" . $fileName;
+        $outputPath = __DIR__ . "/../../uploads/" . $fileName;
 
         // Създай изображение (placeholder) - реално използвай библиотека
         $im = imagecreatetruecolor(200, 200);

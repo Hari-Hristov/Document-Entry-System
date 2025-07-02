@@ -69,7 +69,7 @@ class DocumentController
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['step_id']) && isset($_FILES['document'])) {
             $stepId = (int)$_POST['step_id'];
             $file = $_FILES['document'];
-            $uploadDir = __DIR__ . '/../../public/uploads/';
+            $uploadDir = __DIR__ . '/../../uploads/';
             $fileName = uniqid('step_') . '_' . basename($file['name']);
             $filePath = $uploadDir . $fileName;
             move_uploaded_file($file['tmp_name'], $filePath);

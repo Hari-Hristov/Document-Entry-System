@@ -33,7 +33,7 @@ class DocumentService
         $entryNumber = 'DOC-' . date('YmdHis') . '-' . rand(1000, 9999);
         $accessCode = bin2hex(random_bytes(8));
 
-        $uploadDir = __DIR__ . '/../../public/uploads/';
+        $uploadDir = __DIR__ . '/../../uploads/';
         $fileName = $entryNumber . '_' . basename($file['name']);
         $filePath = $uploadDir . $fileName;
 

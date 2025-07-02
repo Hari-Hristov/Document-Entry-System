@@ -104,7 +104,7 @@ class RequestsController
             if ($request['document_type'] === 'Заявление за поправка' && $requiredDocument === 'Заявление за студентски права') {
                 // Route to Отдел Студенти (category_id = 1)
                 $stepModel->create($requestId, $stepOrder, $requiredDocument);
-                $pdo->prepare("UPDATE request_steps SET status = 'pending' WHERE request_id = ? AND step_order = ?")
+                $pdo->prepare("UPDATE request_steps SET status = 'waiting_responsible' WHERE request_id = ? AND step_order = ?")
                     ->execute([$requestId, $stepOrder]);
             } else {
                 $stepModel->create($requestId, $stepOrder, $requiredDocument);

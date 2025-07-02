@@ -27,7 +27,7 @@
                     <td><span class="badge bg-primary">Нова заявка</span></td>
                     <td class="text-center" style="white-space: nowrap;">
                         <!-- Always show download button for the initial document -->
-                        <a href="public/uploads/<?= htmlspecialchars($request['filename']) ?>" class="btn btn-outline-primary btn-sm ms-2" target="_blank">Изтегли</a>
+                        <a href="uploads/<?= htmlspecialchars($request['filename']) ?>" class="btn btn-outline-primary btn-sm ms-2" target="_blank">Изтегли</a>
                         <?php if (!empty($pendingStepsByRequestId[$request['id']])): ?>
                             <!-- If a document is already requested or being answered, show info and hide actions -->
                             <span class="text-warning ms-2">
@@ -90,7 +90,7 @@
                     </td>
                     <td class="text-center" style="white-space: nowrap;">
                         <?php if (!empty($step['uploaded_file'])): ?>
-                            <a href="public/uploads/<?= htmlspecialchars($step['uploaded_file']) ?>"
+                            <a href="uploads/<?= htmlspecialchars($step['uploaded_file']) ?>"
                                class="btn btn-outline-primary btn-sm ms-2"
                                target="_blank">Изтегли</a>
                         <?php endif; ?>
