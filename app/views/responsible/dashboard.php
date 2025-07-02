@@ -60,7 +60,7 @@
                     <td><?= htmlspecialchars($step['required_document']) ?></td>
                     <td>
                         <?php if (!empty($step['uploaded_file'])): ?>
-                            <a href="/Document-Entry-System/public/uploads/<?= htmlspecialchars($step['uploaded_file']) ?>" target="_blank">Виж файл</a>
+                            <a href="uploads/<?= htmlspecialchars($step['uploaded_file']) ?>" target="_blank">Виж файл</a>
                         <?php else: ?>
                             -
                         <?php endif; ?>

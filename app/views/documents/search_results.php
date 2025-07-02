@@ -34,7 +34,7 @@
     isset($document['workflow_status']) && $document['workflow_status'] === 'approved'
     && !empty($document['filename'])
 ): ?>
-    <?php $fileUrl = '/Document-Entry-System/public/uploads/' . $document['filename']; ?>
+    <?php $fileUrl = 'uploads/' . $document['filename']; ?>
     <p><a href="<?= htmlspecialchars($fileUrl) ?>" target="_blank">📂 Изтегли документа</a></p>
 <?php endif; ?>
 

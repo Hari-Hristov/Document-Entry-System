@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>Вход в системата</title>
-    <link rel="stylesheet" href="/Document-Entry-System/public/assets/css/style.css" />
+    <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
     <section id="login-container">

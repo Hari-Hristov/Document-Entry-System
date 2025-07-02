@@ -23,7 +23,7 @@
                     <td><?= htmlspecialchars($doc['created_at']) ?></td>
                     <td><?= htmlspecialchars($doc['status']) ?></td>
                     <td>
-                        <a href="/Document-Entry-System/public/uploads/<?= htmlspecialchars($doc['filename']) ?>" target="_blank">📥</a>
+                        <a href="uploads/<?= htmlspecialchars($doc['filename']) ?>" target="_blank">📥</a>
                     </td>
                 </tr>
             <?php endforeach; ?>

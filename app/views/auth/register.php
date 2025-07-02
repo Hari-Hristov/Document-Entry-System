@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>Регистрация</title>
-    <link rel="stylesheet" href="/Document-Entry-System/public/assets/css/style.css" />
+    <link rel="stylesheet" href="assets/css/style.css" />
     <script>
     function toggleCategorySelect() {
         const roleSelect = document.getElementById('role');

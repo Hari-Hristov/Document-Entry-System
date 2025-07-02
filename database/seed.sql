@@ -14,6 +14,9 @@ VALUES ('student', '$2y$10$WtUDqLaJotlOaCTehNjOWOAAd.xlQo.CCObuV7D7Iv/8LR04y.hXm
 INSERT INTO users (username, password, full_name, role)
 VALUES ('teacher', '$2y$10$KP.v8Hv2xAk97tCbC1r1lO4jr3qRwMMZKmFOwu/R6VwaA3b.007cW', 'Отговарящ потребител', 'responsible');
 
+INSERT INTO users (username, password, full_name, role)
+VALUES ('studenti', '$2y$10$JLD./xN/VYlixHqhtRjiBOiePJ7Zq5gyNkK5aTRraxni7DFbMxGYy', 'Отдел Студенти', 'responsible');
+
 -- Вмъкване на администратор (role: admin)
 INSERT INTO users (username, password, full_name, role)
 VALUES ('admin', '$2y$10$GQsUsWLUZjD4AIVKV/FZhegeq1jQLNhkQxUSASdZHBDBAX2shQLTW', 'Администратор', 'admin');
