@@ -1,6 +1,6 @@
 -- Вмъкване на категории
 INSERT INTO categories (name, responsible_user_id) VALUES
-('Отдел Студенти', NULL),
+('Отдел Студенти', 3),
 ('Учебен отдел – Магистри', NULL),
 ('Кандидат-студенти', NULL),
 ('Сесия', 2),
@@ -15,7 +15,7 @@ INSERT INTO users (username, password, full_name, role)
 VALUES ('teacher', '$2y$10$KP.v8Hv2xAk97tCbC1r1lO4jr3qRwMMZKmFOwu/R6VwaA3b.007cW', 'Отговарящ потребител', 'responsible');
 
 INSERT INTO users (username, password, full_name, role)
-VALUES ('studenti', '$2y$10$JLD./xN/VYlixHqhtRjiBOiePJ7Zq5gyNkK5aTRraxni7DFbMxGYy', 'Отдел Студенти', 'responsible');
+VALUES ('studenti', '$2y$10$JLD./xN/VYlixHqhtRjiBOiePJ7Zq5gyNkK5aTRraxni7DFbMxGYy', 'Отговарящ потребител', 'responsible');
 
 -- Вмъкване на администратор (role: admin)
 INSERT INTO users (username, password, full_name, role)
